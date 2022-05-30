@@ -36,15 +36,18 @@ class User:
         context = ssl.create_default_context()
         self.email = user
         self.password = password
-        self.smtp_server = smtplib.SMTP_SSL('smtp.' + str(server), int(smtp_port),
-                                            context=context)  # spent two hours here only to find i made a typo :/
-        self.imap_server = imaplib.IMAP4_SSL(
-            'imap.' + str(server), int(imap_port), ssl_context=context)
+        # print(user, password, server, imap_port, smtp_port, 'smtp.' + str(server))
+        print('Starting SMTP server...')
+        self.smtp_server = smtplib.SMTP_SSL('smtp.' + str(server), int(smtp_port), context=context)  # spent two hours here only to find i made a typo :/
+        print('Starting IMAP3 server...')
+        self.imap_server = imaplib.IMAP4_SSL('imap.' + str(server), int(imap_port), ssl_context=context)
+        print('Logging in and encrypting...')
         self.smtp_server.ehlo()  # can be omitted
         self.context = context
         self.imap_server.login(
             user, password), self.smtp_server.login(user, password)
         self.imap_server.select('INBOX', False)
+        print('Done!')
         # requires error handling on login in case of invalid credentials or access by less secure apps is disabled.
 
     def sendmail(self, reciever: str, content: str = 'None', subject: str = 'None', cc: typing.List = None, attachments: list[str] = None):
@@ -207,7 +210,8 @@ user = User('password', 'email')
 
 
 Customized login:
-user = User('password', 'email', server='outlook.com', smtp_port=587, imap_port=993) # ports for smtp and imap servers can be found at https://www.systoolsgroup.com/imap/.
+user = User('password', 'email', server='outlook.com', smtp_port=587, imap_port=993)
+ # ports for SMTP and IMAP3 servers can be found at https://www.systoolsgroup.com/imap/.
 
 
 Getting the latest mail:
@@ -221,5 +225,5 @@ user.sendmail('to_address', 'content', subject='subject', cc=['cc_address1', 'cc
 # the rest of the methods are quite self-explanatory, if you need help DM me at HRLO77#3508 (discord) or HRLO77 (reddit)
 # (Do the smart thing an open a discussion)
 
-# start the CLI by running - python CLImail <email_address> <password> -server [server] -smtp_port [smtp_port] -imap_port [imap_port]
-# or on unix- $python CLImail <email_address> <password> -server [server] -smtp_port [smtp_port] -imap_port [imap_port]
+# start the CLI by running - python CLImail -email <email_address> -password <password> -server [server] -smtp_port [smtp_port] -imap_port [imap_port]
+# or on unix- $python CLImail -email <email_address> -password <password> -server [server] -smtp_port [smtp_port] -imap_port [imap_port]
