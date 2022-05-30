@@ -1,4 +1,7 @@
-import smtplib, ssl, imaplib, email
+import smtplib
+import ssl
+import imaplib
+import email
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -35,15 +38,16 @@ class User:
         self.password = password
         self.smtp_server = smtplib.SMTP_SSL('smtp.' + str(server), int(smtp_port),
                                             context=context)  # spent two hours here only to find i made a typo :/
-        self.imap_server = imaplib.IMAP4_SSL('imap.' + str(server), int(imap_port), ssl_context=context)
+        self.imap_server = imaplib.IMAP4_SSL(
+            'imap.' + str(server), int(imap_port), ssl_context=context)
         self.smtp_server.ehlo()  # can be omitted
         self.context = context
-        self.imap_server.login(user, password), self.smtp_server.login(user, password)
+        self.imap_server.login(
+            user, password), self.smtp_server.login(user, password)
         self.imap_server.select('INBOX', False)
         # requires error handling on login in case of invalid credentials or access by less secure apps is disabled.
 
-
-    def sendmail(self, reciever: str, content: str = 'None', subject: str = 'None', cc: typing.List = None, attachments: list[str]=None):
+    def sendmail(self, reciever: str, content: str = 'None', subject: str = 'None', cc: typing.List = None, attachments: list[str] = None):
         '''
         Sends a basic email to a reciever and the cc.
         Currently doesn't support bcc's.
@@ -62,11 +66,12 @@ class User:
         msg.attach(MIMEText(" ".join(content), 'plain'))
         if not attachments is None:
             attachments = [open(i, 'r') for i in attachments].copy()
-            for attachment in attachments: # add the attachments
+            for attachment in attachments:  # add the attachments
                 payload = MIMEBase('application', 'octate-stream')
                 payload.set_payload((attachment).read())
                 email.encoders.encode_base64(payload)
-                payload.add_header('Content-Decomposition', 'attachment', filename=attachment.name)
+                payload.add_header('Content-Decomposition',
+                                   'attachment', filename=attachment.name)
                 msg.attach(payload)
         self.smtp_server.set_debuglevel(1)
         text = msg.as_string()
@@ -119,7 +124,7 @@ class User:
         self.imap_server.delete(mailbox)
         return True  # deleted a mailbox
 
-    def check_mail(self, size: int=-1):
+    def check_mail(self, size: int = -1):
         '''
         Returns the ID's of the mails specified.
         '''
