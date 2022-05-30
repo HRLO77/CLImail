@@ -1,0 +1,5 @@
+email
+smtplib
+imaplib
+ssl
+typing
