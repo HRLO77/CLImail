@@ -1,17 +1,15 @@
-import smtplib
-import ssl
-import imaplib
-import email
+import smtplib, ssl, imaplib, email
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
 import typing
 
 
 class User:
     '''
-    Represents a user.
+    Represents a Gmail account. (so far)
     Requires a password and user email for instantiation.
-    Account must have "less secure apps allowed" enabled in account settings.
+    Gmail account must have "less secure apps allowed" enabled in account settings.
     NOTE: ADD MORE ERROR HANDLING!!!
     '''
 
@@ -37,21 +35,20 @@ class User:
         self.password = password
         self.smtp_server = smtplib.SMTP_SSL('smtp.' + str(server), int(smtp_port),
                                             context=context)  # spent two hours here only to find i made a typo :/
-        self.imap_server = imaplib.IMAP4_SSL(
-            'imap.' + str(server), int(imap_port), ssl_context=context)
+        self.imap_server = imaplib.IMAP4_SSL('imap.' + str(server), int(imap_port), ssl_context=context)
         self.smtp_server.ehlo()  # can be omitted
         self.context = context
-        self.imap_server.login(
-            user, password), self.smtp_server.login(user, password)
+        self.imap_server.login(user, password), self.smtp_server.login(user, password)
         self.imap_server.select('INBOX', False)
         # requires error handling on login in case of invalid credentials or access by less secure apps is disabled.
 
-    def sendmail(self, reciever: str, content: str = 'None', subject: str = 'None', cc: typing.List = None):
+
+    def sendmail(self, reciever: str, content: str = 'None', subject: str = 'None', cc: typing.List = None, attachments: list[str]=None):
         '''
         Sends a basic email to a reciever and the cc.
-        Currently doesn't support bcc's and attachments.
+        Currently doesn't support bcc's.
         '''
-        # TODO: add support for bcc's and attachment of files
+        # TODO: add support for bcc's
         msg = MIMEMultipart()
         if not cc is None:
             r = [reciever, *cc]
@@ -61,20 +58,20 @@ class User:
             msg['To'] = r
         msg['From'] = self.email
         msg['Subject'] = subject
-        msg.attach(MIMEText(content, 'plain'))
-        # attachments = [open(i, 'r') for i in attachments]
-        # for attachment in attachments: # add the attachments
-        #     payload = MIMEBase('application', 'octate-stream')
-        #     payload.set_payload((attachment).read())
-        #     email.encoders.encode_base64(payload)
-        #     payload.add_header('Content-Decomposition', 'attachment', filename=attachment.name)
-        #     msg.attach(payload)
-        '''
-        Code above is commented out because of errors I am yet to understand.
-        '''
+        print(content, reciever)
+        msg.attach(MIMEText(" ".join(content), 'plain'))
+        if not attachments is None:
+            attachments = [open(i, 'r') for i in attachments].copy()
+            for attachment in attachments: # add the attachments
+                payload = MIMEBase('application', 'octate-stream')
+                payload.set_payload((attachment).read())
+                email.encoders.encode_base64(payload)
+                payload.add_header('Content-Decomposition', 'attachment', filename=attachment.name)
+                msg.attach(payload)
+        self.smtp_server.set_debuglevel(1)
         text = msg.as_string()
-        print(text)
         self.smtp_server.sendmail(self.email, r, text)
+        self.smtp_server.set_debuglevel(0)
         return True  # Message has been sent succesfully!
 
     def rename_mailbox(self, old: str, new: str):
@@ -122,7 +119,7 @@ class User:
         self.imap_server.delete(mailbox)
         return True  # deleted a mailbox
 
-    def check_mail(self, size: int = -1):
+    def check_mail(self, size: int=-1):
         '''
         Returns the ID's of the mails specified.
         '''

@@ -70,10 +70,11 @@ while True:
         sendmail = subparsers.add_parser('sendmail', aliases=['send', 'sendmessage'],
                                                help='Sends a message.')
         sendmail.add_argument('-reciever', help='The address to mail.', required=True)
-        sendmail.add_argument('-content', help='Body of the message.', required=True)
-        sendmail.add_argument('-subject', help='The subject', required=False)
+        sendmail.add_argument('-content', help='Body of the message.', required=True, nargs='*', type=str)
+        sendmail.add_argument('-subject', help='The subject', required=False, nargs='*', type=str)
         sendmail.add_argument('-cc', help='Carbon copy - addresses to send the mail to as well.', required=False, type=list)
-        sendmail.set_defaults(func=lambda: (U.sendmail(args.reciever, args.content, args.subject, args.cc), print(f'Email sent to {args.reciever} successfully!')))
+        sendmail.add_argument('-to_attach', help='List of filenames/fps to attach to the mail', required=False, type=list, nargs="*")
+        sendmail.set_defaults(func=lambda: (U.sendmail(args.reciever, " ".join(args.content), " ".join(args.subject), ["".join(c) for c in args.cc], ["".join(a) for a in args.to_attach]), print(f'Email sent to {args.reciever} successfully!')))
         unread = subparsers.add_parser('unread', aliases=['unreads'],
                                                help='Whether or not the current user has unread emails.')
         unread.set_defaults(func=lambda: print(f'You {int(not U.is_unread()) * "do not"} currently have unread messages!'))
@@ -84,9 +85,29 @@ while True:
         close = subparsers.add_parser('close', aliases=['quit', 'cancel'],
                                                help='Logout of SMTP and IMAP3 server, close and overwrite all login data.')
         close.set_defaults(func=lambda: (U.close(), print('Closed server.'), parser.exit()))# don't even ask
-
-
-
+        search  = subparsers.add_parser('search', aliases=['searchmail', 'searchmessages'], help='Takes in a string and criteria, and returns messages that match.')
+        search.add_argument('-string', required=False, default=None, type=str, nargs='*')
+        search.add_argument('-criteria', required=True)
+        search.set_defaults(func=lambda: [print(U.mail_from_template(U.mail_from_id(i))) for i in U.search("".join(args.string), args.criteria)])
+        subscribe = subparsers.add_parser('subscribe', help='Subscribes to a mailbox.')
+        subscribe.add_argument('-mailbox', required=True, type=str)
+        subscribe.set_defaults(func=lambda: U.subscribe(args.mailbox))
+        unsubscribe = subparsers.add_parser('unsubscribe', help='Unsubscribes TO a mailbox.')
+        unsubscribe.add_argument('-mailbox', required=True, type=str)
+        unsubscribe.set_defaults(func=lambda: U.unsubscribe(args.mailbox))
+        rename = subparsers.add_parser('rename', aliases=['renamemailbox', 'renamebox'])
+        rename.add_argument('-old_mailbox', required=True, type=str,)
+        rename.add_argument('-new_mailbox', required=True, type=str,)
+        rename.set_defaults(func=lambda: (U.rename_mailbox(args.old_mailbox, args.new_mailbox), print(f'Renamed mailbox {args.old_mailbox} to {args.new_mailbox}.')))
+        checksingmail = subparsers.add_parser('checkmail', aliases=['checkmessages', 'check_mail'])
+        checksingmail.add_argument('-id', required=True, type=int)
+        checksingmail.set_defaults(func=lambda:print(U.mail_from_template(U.mail_from_id(args.id))))
+        crtmailbox = subparsers.add_parser('new_mailbox', aliases=['newmailbox', 'new_mail_box'])
+        crtmailbox.add_argument('-name', required=True, type=str,)
+        crtmailbox.set_defaults(func=lambda: U.create_mailbox(args.name))
+        delmailbox = subparsers.add_parser('delete_mailbox', aliases=['removemailbox', 'delete_mail_box'])
+        delmailbox.add_argument('-name', required=True, type=str,)
+        delmailbox.set_defaults(func=lambda: U.delete_mailbox(args.name))
 
         args = parser.parse_args(cmd.split())
         args.__dict__['func']() # run the function associated with each command
