@@ -78,7 +78,7 @@ while True:
         unread = subparsers.add_parser('unread', aliases=['unreads'],
                                                help='Whether or not the current user has unread emails.')
         unread.set_defaults(func=lambda: print(f'You {int(not U.is_unread()) * "do not"} currently have unread messages!'))
-        check_mail = subparsers.add_parser('latestmail', aliases=['latestmessages', 'latest-mail'],
+        check_mail = subparsers.add_parser('latestmail', aliases=['latestmessages', 'latest_mail', 'latest'],
                                                help='Checks the specified number of messages the user has in the current mailbox.')
         check_mail.add_argument('-size', default=10, help='Number of messages to check', type=int, required=False)
         check_mail.set_defaults(func=lambda: [print(U.mail_from_template(U.mail_from_id(i))) for i in U.check_mail(-1)[:0-args.size:-1]])# don't even ask
