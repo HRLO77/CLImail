@@ -1,4 +1,7 @@
-import smtplib, ssl, imaplib, email
+import smtplib
+import ssl
+import imaplib
+import email
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import typing
@@ -6,7 +9,7 @@ import typing
 
 class User:
     '''
-    Represents a useer.
+    Represents a user.
     Requires a password and user email for instantiation.
     Account must have "less secure apps allowed" enabled in account settings.
     NOTE: ADD MORE ERROR HANDLING!!!
@@ -34,10 +37,12 @@ class User:
         self.password = password
         self.smtp_server = smtplib.SMTP_SSL('smtp.' + str(server), int(smtp_port),
                                             context=context)  # spent two hours here only to find i made a typo :/
-        self.imap_server = imaplib.IMAP4_SSL('imap.' + str(server), int(imap_port), ssl_context=context)
+        self.imap_server = imaplib.IMAP4_SSL(
+            'imap.' + str(server), int(imap_port), ssl_context=context)
         self.smtp_server.ehlo()  # can be omitted
         self.context = context
-        self.imap_server.login(user, password), self.smtp_server.login(user, password)
+        self.imap_server.login(
+            user, password), self.smtp_server.login(user, password)
         self.imap_server.select('INBOX', False)
         # requires error handling on login in case of invalid credentials or access by less secure apps is disabled.
 
@@ -117,7 +122,7 @@ class User:
         self.imap_server.delete(mailbox)
         return True  # deleted a mailbox
 
-    def check_mail(self, size: int=-1):
+    def check_mail(self, size: int = -1):
         '''
         Returns the ID's of the mails specified.
         '''
