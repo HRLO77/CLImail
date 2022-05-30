@@ -6,9 +6,9 @@ import typing
 
 class User:
     '''
-    Represents a Gmail account. (so far)
+    Represents a useer.
     Requires a password and user email for instantiation.
-    Gmail account must have "less secure apps allowed" enabled in account settings.
+    Account must have "less secure apps allowed" enabled in account settings.
     NOTE: ADD MORE ERROR HANDLING!!!
     '''
 
