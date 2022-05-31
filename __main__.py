@@ -9,11 +9,13 @@ my_parser = argparse.ArgumentParser(
 my_parser.add_argument('-email',
                        metavar='user',
                        type=str,
-                       help='The email to sign in as.')
+                       help='The email to sign in as.',
+                       required=True)
 my_parser.add_argument('-password',
                        metavar='password',
                        type=str,
-                       help='The password to sign in to the email with.')
+                       help='The password to sign in to the email with.',
+                       required=True)
 my_parser.add_argument('-server',
                        metavar='server',
                        type=str,
