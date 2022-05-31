@@ -1,7 +1,4 @@
-import smtplib
-import ssl
-import imaplib
-import email
+import smtplib, ssl, imaplib, email
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -10,9 +7,9 @@ import typing
 
 class User:
     '''
-    Represents a Gmail account. (so far)
+    Represents an email account.
     Requires a password and user email for instantiation.
-    Gmail account must have "less secure apps allowed" enabled in account settings.
+    Account must have "less secure apps allowed" enabled in account settings.
     NOTE: ADD MORE ERROR HANDLING!!!
     '''
 
@@ -24,11 +21,9 @@ class User:
 
     def __init__(self, password: str, user: str, server: str = 'gmail.com', smtp_port: int = 465, imap_port: int = 993):
         '''
-        Too lazy to add support for other email providers.
         All ports and server options available at https://www.systoolsgroup.com/imap/.
-        Check it out youself.
+        Check it out yourself.
         '''
-        # TODO: add support for different emails such at outlook, hotmail, and maybe organization emails
         '''
         IMAP: imap.gmail.com - 993
         SMTP: smtp.gmail.com - 465
@@ -224,7 +219,7 @@ user = User('password', 'email', server='outlook.com', smtp_port=587, imap_port=
 
 
 Getting the latest mail:
-user.mail_from_template(user.mail_from_id(user.check_mail(None)[-1]))
+user.mail_from_template(user.mail_from_id(user.check_mail(-1)[-1]))
 
 Sending an email:
 
