@@ -38,10 +38,18 @@ class User:
         self.password = password
         # print(user, password, server, imap_port, smtp_port, 'smtp.' + str(server))
         print('Starting SMTP server...')
-        self.smtp_server = smtplib.SMTP_SSL('smtp.' + str(server), int(smtp_port), context=context)  # spent two hours here only to find i made a typo :/
+        # spent two hours here only to find i made a typo :/
+        self.smtp_server = smtplib.SMTP_SSL(
+            'smtp.' + str(server), int(smtp_port), context=context)
         print('Starting IMAP3 server...')
-        self.imap_server = imaplib.IMAP4_SSL('imap.' + str(server), int(imap_port), ssl_context=context)
+        self.imap_server = imaplib.IMAP4_SSL(
+            'imap.' + str(server), int(imap_port), ssl_context=context)
         print('Logging in and encrypting...')
+        try:
+            self.smtp_server.starttls(context=context)
+            self.imaplib_server.starttls(ssl_context=context)
+        except BaseException:
+            print('TLS encrytion failed.')
         self.smtp_server.ehlo()  # can be omitted
         self.context = context
         self.imap_server.login(
@@ -50,12 +58,13 @@ class User:
         print('Done!')
         # requires error handling on login in case of invalid credentials or access by less secure apps is disabled.
 
-    def sendmail(self, reciever: str, content: str = 'None', subject: str = 'None', cc: typing.List = None, attachments: list[str] = None):
+    def sendmail(self, reciever: str, content: str = 'None', subject: str = 'None', cc: typing.List = None, attachments: typing.List = None):
         '''
         Sends a basic email to a reciever and the cc.
         Currently doesn't support bcc's.
         '''
         # TODO: add support for bcc's
+        self.smtp_server.set_debuglevel(1)
         msg = MIMEMultipart()
         if not cc is None:
             r = [reciever, *cc]
@@ -65,21 +74,21 @@ class User:
             msg['To'] = r
         msg['From'] = self.email
         msg['Subject'] = subject
-        print(content, reciever)
-        msg.attach(MIMEText(" ".join(content), 'plain'))
+        msg.attach(MIMEText(content, 'plain'))
         if not attachments is None:
-            attachments = [open(i, 'r') for i in attachments].copy()
+            print('loading attachments')
+            attachments = [open(i, 'r') for i in attachments]
             for attachment in attachments:  # add the attachments
+                print(attachment, type(attachment))
                 payload = MIMEBase('application', 'octate-stream')
                 payload.set_payload((attachment).read())
+                print(payload, type(payload))
                 email.encoders.encode_base64(payload)
                 payload.add_header('Content-Decomposition',
-                                   'attachment', filename=attachment.name)
+                                   'attachment', name=attachment.name)
                 msg.attach(payload)
-        self.smtp_server.set_debuglevel(1)
         text = msg.as_string()
         self.smtp_server.sendmail(self.email, r, text)
-        self.smtp_server.set_debuglevel(0)
         return True  # Message has been sent succesfully!
 
     def rename_mailbox(self, old: str, new: str):
