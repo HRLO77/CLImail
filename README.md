@@ -2,6 +2,9 @@
 
 An CLI email client written in python. _Should_ support different email providers such as outlook, gmail, hotmail etc.
 
+The default server it uses is gmail, if you want to use any other email provider, make sure to enter the correct server,
+ports and address.
+
 # EXAMPLES:
 
 Normal login:
