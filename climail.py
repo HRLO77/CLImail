@@ -1,8 +1,11 @@
-import smtplib, ssl, imaplib, email
+import smtplib
+import ssl
+import imaplib
+import email
+import typing
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
-import typing
 
 
 class User:
@@ -50,6 +53,7 @@ class User:
         self.imap_server.login(
             user, password), self.smtp_server.login(user, password)
         self.imap_server.select('INBOX', False)
+        self.current_mailbox = 'INBOX'
         print('Done!')
         # requires error handling on login in case of invalid credentials or access by less secure apps is disabled.
 
@@ -175,23 +179,34 @@ class User:
         string += '\n================== End of Mail ======================\n'
         return string
 
-    def select_mailbox(self, mailbox: str, readonly: bool = True):
+    def select_mailbox(self, mailbox: str, readonly: bool = False):
         '''
         Selects a mailbox. (All actions pertaining to a mailbox in User.imap_server are affecting the selected mailbox, INBOX, is the default)
         '''
-        self.imap_server.select(mailbox, readonly)
-        return True  # Sucessfully selected a mailbox!
+        if mailbox in str(self.imap_server.list()[1]):
+            self.imap_server.select(mailbox, readonly)
+            self.current_mailbox = mailbox
+            return True  # Sucessfully selected a mailbox!
+        return False
 
     def unselect_mailbox(self):
         '''
         Unselects a mailbox, explaination is given in the User.select_mailbox method. The current mailbox will be unselected, not reset to INBOX, but unselected until User.select_mailbox method is used.
         '''
         self.imap_server.unselect()
+        self.current_mailbox = 'None'
         return True  # succesfully unselected the current mailbox.
+
+    def refresh(self):
+        '''
+        Refreshes the current mailbox and fetches new mails.
+        '''
+        return self.select_mailbox(self.current_mailbox)
 
     def close(self):
         '''
         Closes SMTP and IMAP3 servers, logs out and deletes user data.
+        It is recommended to run this method before exiting the program.
         '''
         self.smtp_server.quit()
         self.imap_server.close()
@@ -224,6 +239,12 @@ user.mail_from_template(user.mail_from_id(user.check_mail(-1)[-1]))
 Sending an email:
 
 user.sendmail('to_address', 'content', subject='subject', cc=['cc_address1', 'cc_address2'])
+
+Selecting a mailbox (mailboxes can be found from the User.list_mailboxes method):
+user.select_mailbox('INBOX')
+
+NOTE: to select mailboxes other than INBOX, you must select exactly how they are shown in the User.list_mailboxes method. Sent mailbox for example is shown as "[Gmail]/Sent Mail".
+user.select_mailbox('"[Gmail]/Sent Mail"')
 '''
 
 # the rest of the methods are quite self-explanatory, if you need help DM me at HRLO77#3508 (discord) or HRLO77 (reddit)
