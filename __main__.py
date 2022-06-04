@@ -98,7 +98,7 @@ while True:
         check_mail.add_argument(
             '-size', default=10, help='Number of messages to check', type=int, required=False)
         check_mail.set_defaults(func=lambda: [print(U.mail_from_template(
-            U.mail_from_id(i))) for i in U.check_mail(-1)[:0-args.size:-1]])  # don't even ask
+            U.mail_from_id(i))) for i in U.check_mail(-1)[:0-(args.size+1):-1]])  # don't even ask
         close = subparsers.add_parser('close', aliases=['quit', 'cancel'],
                                       help='Logout of SMTP and IMAP3 server, close and overwrite all login data.')
         close.set_defaults(func=lambda: (U.close(), print(

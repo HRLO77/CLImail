@@ -1,11 +1,14 @@
 import smtplib
 import ssl
+from os.path import basename
 import imaplib
 import email
 import typing
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
+from email.utils import COMMASPACE, formatdate
 
 
 class User:
@@ -22,7 +25,7 @@ class User:
         return self.email == other.email and self.password == other.password and self.port == other.port and isinstance(
             other, self.__class__)  # dunno why I added this function
 
-    def __init__(self, password: str, user: str, server: str = 'gmail.com', smtp_port: int = 465, imap_port: int = 993):
+    def __init__(self, password: str, user: str, server: str = "gmail.com", smtp_port: int = 465, imap_port: int = 993):
         '''
         All ports and server options available at https://www.systoolsgroup.com/imap/.
         Check it out yourself.
@@ -71,21 +74,20 @@ class User:
         else:
             r = reciever
             msg['To'] = r
+        msg['To'] = COMMASPACE.join(r)
+        msg['Date'] = formatdate(localtime=True)
         msg['From'] = self.email
         msg['Subject'] = subject
         msg.attach(MIMEText(content, 'plain'))
         if not attachments is None:
             print('loading attachments')
-            attachments = [open(i, 'r') for i in attachments]
+            attachments = [open(i, 'rb') for i in attachments]
             for attachment in attachments:  # add the attachments
-                print(attachment, type(attachment))
-                payload = MIMEBase('application', 'octate-stream')
-                payload.set_payload((attachment).read())
-                print(payload, type(payload))
-                email.encoders.encode_base64(payload)
-                payload.add_header('Content-Decomposition',
-                                   'attachment', name=attachment.name)
-                msg.attach(payload)
+                part = MIMEApplication(
+                    attachment.read(),
+                    Name=attachment.name)
+                part['Content-Disposition'] = 'attachment; filename="%s"' % attachment.name
+                msg.attach(part)
         text = msg.as_string()
         self.smtp_server.sendmail(self.email, r, text)
         return True  # Message has been sent succesfully!
@@ -176,6 +178,11 @@ class User:
         for i in message.walk():
             if i.get_content_type() == "text/plain":
                 string += i.as_string()
+        string += '\n\nAttachments:\n'
+        for i in message.get_payload():
+            if i.get_content_type() == 'text/plain':
+                continue
+            string += f'{i.get_filename()}\n'
         string += '\n================== End of Mail ======================\n'
         return string
 
@@ -229,8 +236,9 @@ user = User('password', 'email')
 
 
 Customized login:
-user = User('password', 'email', server='outlook.com', smtp_port=587, imap_port=993)
- # ports for SMTP and IMAP3 servers can be found at https://www.systoolsgroup.com/imap/.
+user = User('password', 'email', server='smtp.outlook.com', smtp_port=587, imap_port=993)
+
+# Ports for SMTP and IMAP3 servers can be found at https://www.systoolsgroup.com/imap/.
 
 
 Getting the latest mail:
