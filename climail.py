@@ -158,6 +158,7 @@ class User:
         Use email.message_from_bytes method to convert the mail to email.message.Message.
         Retrieve data using message.get("From"), message.get("Date") for instance._
         '''
+
         return email.message_from_bytes(
             self.imap_server.fetch(str(id), '(RFC822)')[1][0][1])  # I hate working with bytes
 
