@@ -80,9 +80,9 @@ while True:
         sendmail.add_argument(
             '-reciever', help='The address to mail.', required=True, type=str)
         sendmail.add_argument(
-            '-content', help='Body of the message.', required=True, nargs='*', type=str)
+            '-content', help='Body of the message.', required=False, nargs='*', type=str, default=['None'])
         sendmail.add_argument('-subject', help='The subject',
-                              required=False, nargs='*', type=str, default='None')
+                              required=False, nargs='*', type=str, default=['None'])
         sendmail.add_argument('-cc', help='Carbon copy - addresses to send the mail to as well, seperated by spaces.',
                               required=False, type=str, default=None, nargs='*')
         sendmail.add_argument(

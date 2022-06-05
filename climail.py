@@ -42,7 +42,7 @@ class User:
         # spent two hours here only to find i made a typo :/
         self.smtp_server = smtplib.SMTP_SSL(
             'smtp.' + str(server), int(smtp_port), context=context)
-        print('Starting IMAP3 server...')
+        print('Starting IMAP server...')
         self.imap_server = imaplib.IMAP4_SSL(
             'imap.' + str(server), int(imap_port), ssl_context=context)
         print('Logging in and encrypting...')
@@ -60,7 +60,7 @@ class User:
         print('Done!')
         # requires error handling on login in case of invalid credentials or access by less secure apps is disabled.
 
-    def sendmail(self, reciever: str, content: str = 'None', subject: str = 'None', cc: typing.List = None, attachments: typing.List = None):
+    def sendmail(self, reciever: str, content: str = 'None', subject: str = 'None', cc: typing.List[typing.AnyStr] = None, attachments: typing.List[typing.AnyStr] = None):
         '''
         Sends a basic email to a reciever and the cc.
         Currently doesn't support bcc's.
@@ -212,7 +212,7 @@ class User:
 
     def close(self):
         '''
-        Closes SMTP and IMAP3 servers, logs out and deletes user data.
+        Closes SMTP and IMAP servers, logs out and deletes user data.
         It is recommended to run this method before exiting the program.
         '''
         self.smtp_server.quit()
@@ -238,7 +238,7 @@ user = User('password', 'email')
 Customized login:
 user = User('password', 'email', server='smtp.outlook.com', smtp_port=587, imap_port=993)
 
-# Ports for SMTP and IMAP3 servers can be found at https://www.systoolsgroup.com/imap/.
+# Ports for SMTP and IMAP servers can be found at https://www.systoolsgroup.com/imap/.
 
 
 Getting the latest mail:
