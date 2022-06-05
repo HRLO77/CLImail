@@ -49,7 +49,7 @@ class User:
         try:
             self.smtp_server.starttls(context=context)
             self.imaplib_server.starttls(ssl_context=context)
-        except BaseException:
+        except Exception:
             print('TLS encrytion failed.')
         self.smtp_server.ehlo()  # can be omitted
         self.context = context
