@@ -99,11 +99,12 @@ class User:
         self.imap_server.rename(old, new)
         return True  # Mailbox has been renamed succesfully!
 
-    def search(self, string: str, requirements: str):
+    def search(self, string: str = None, requirements: str = '(UNSEEN)', size: int = 10):
         '''
         Looks for mail with the string provided and requirements.
         '''
-        return self.imap_server.search(string, requirements)[1][0].decode().split()
+        print(string, requirements)
+        return self.imap_server.search(string, requirements)[1][0].decode().split()[:size]
 
     def subscribe(self,
                   mailbox: str):  # and don't forget to hit that like button and click the notificaion bell for more!

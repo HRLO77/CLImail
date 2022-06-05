@@ -107,9 +107,11 @@ while True:
             'searchmail', 'searchmessages'], help='Takes in a string and criteria, and returns messages that match.')
         search.add_argument('-string', required=False,
                             default=None, type=str, nargs='*')
-        search.add_argument('-criteria', required=True)
+        search.add_argument('-criteria', required=False,
+                            nargs='*', default=['(UNSEEN)'], type=str)
+        search.add_argument('-size', required=False, default=10, type=int)
         search.set_defaults(func=lambda: [print(U.mail_from_template(
-            U.mail_from_id(i))) for i in U.search("".join(args.string), args.criteria)])
+            U.mail_from_id(i))) for i in U.search(args.string if args.string is None else " ".join(args.string), " ".join(args.criteria), size=args.size)])
         subscribe = subparsers.add_parser(
             'subscribe', help='Subscribes to a mailbox.')
         subscribe.add_argument('-mailbox', required=True, type=str)
@@ -141,7 +143,7 @@ while True:
         args = parser.parse_args(cmd.split())
         # run the function associated with each command
         args.__dict__['func']()
-    except BaseException as e:
+    except Exception as e:
         if len(set(str(e))) == 0:
             parser.exit()
         else:
