@@ -20,7 +20,7 @@ user.mail_from_template(user.mail_from_id(user.check_mail(None)[-1]))
 
 Sending an email:
 
-user.sendmail('to_address', 'content', subject='subject', cc=['cc_address1', 'cc_address2'])
+user.sendmail('to_address', 'content', subject='subject', cc=['cc_address1', 'cc_address2'], attachments=['file1.txt', 'file2.txt')
 
 Selecting a mailbox (mailboxes can be found from the User.list_mailboxes method):
 
