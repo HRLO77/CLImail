@@ -103,10 +103,7 @@ class User:
         '''
         Looks for mail with the string provided and requirements.
         '''
-        try:
-            return self.imap_server.search(string, requirements)[1][0].decode().split()
-        except BaseException as e:  # too lazy to list actual exception
-            return f'An error occurred: \n {e}\n'
+        return self.imap_server.search(string, requirements)[1][0].decode().split()
 
     def subscribe(self,
                   mailbox: str):  # and don't forget to hit that like button and click the notificaion bell for more!
