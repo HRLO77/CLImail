@@ -7,7 +7,7 @@ my_parser = argparse.ArgumentParser(
     description='A CLI email client.', prog='CLImail')
 # Add the arguments
 my_parser.add_argument('-email',
-                       metavar='user',
+                       metavar='email',
                        type=str,
                        help='The email to sign in as.',
                        required=True)
@@ -37,7 +37,6 @@ my_parser.add_argument('-imap_port',
 
 # Execute the parse_args() method
 args = my_parser.parse_args()
-
 password = args.password
 user = args.email
 try:
