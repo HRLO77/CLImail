@@ -143,7 +143,4 @@ while True:
         # run the function associated with each command
         args.__dict__['func']()
     except Exception as e:
-        if len(set(str(e))) == 0:
-            parser.exit()
-        else:
-            print('Error: ', e)
+        print('Error: ', e)
