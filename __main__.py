@@ -37,7 +37,7 @@ my_parser.add_argument('-imap_port',
 
 # Execute the parse_args() method
 args = my_parser.parse_args()
-password = getpass.getpass('Password: ')
+password = getpass.getpass('Password (pasting is not supported): ')
 user = input('Email: ')
 try:
     U = climail.User(password=password, user=user, server=args.server,
