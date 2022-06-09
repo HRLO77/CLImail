@@ -1,21 +1,21 @@
 import argparse
 import sys
 import climail
-import argparse
+import getpass
 
 my_parser = argparse.ArgumentParser(
     description='A CLI email client.', prog='CLImail')
 # Add the arguments
-my_parser.add_argument('-email',
-                       metavar='email',
-                       type=str,
-                       help='The email to sign in as.',
-                       required=True)
-my_parser.add_argument('-password',
-                       metavar='password',
-                       type=str,
-                       help='The password to sign in to the email with.',
-                       required=True)
+# my_parser.add_argument('-email',
+#                        metavar='email',
+#                        type=str,
+#                        help='The email to sign in as.',
+#                        required=True)
+# my_parser.add_argument('-password',
+#                        metavar='password',
+#                        type=str,
+#                        help='The password to sign in to the email with.',
+#                        required=True)
 my_parser.add_argument('-server',
                        metavar='server',
                        type=str,
@@ -37,12 +37,12 @@ my_parser.add_argument('-imap_port',
 
 # Execute the parse_args() method
 args = my_parser.parse_args()
-password = args.password
-user = args.email
+password = getpass.getpass('Password: ')
+user = input('Email: ')
 try:
     U = climail.User(password=password, user=user, server=args.server,
                      imap_port=args.imap_port, smtp_port=args.smtp_port)  # login
-except BaseException as e:
+except Exception as e:
     print(e)
     my_parser.exit()
 else:
