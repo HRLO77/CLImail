@@ -32,7 +32,7 @@ my_parser.add_argument('-smtp_port',
 my_parser.add_argument('-imap_port',
                        metavar='imap_port',
                        type=str,
-                       help='The port to sign into the IMAP3 server with, is defaulted to 993',
+                       help='The port to sign into the IMAP4 server with, is defaulted to 993',
                        default=993,
                        required=False)
 
@@ -93,14 +93,16 @@ while True:
                                        help='Whether or not the current user has unread emails.')
         unread.set_defaults(func=lambda: print(
             f'You {int(not U.is_unread()) * "do not"} currently have unread messages!'))
-        check_mail = subparsers.add_parser('latestmail', aliases=['latestmessages', 'latest_mail', 'latest'],
+        check_mail = subparsers.add_parser('checkmail', aliases=['checkmessages', 'check_mail', 'check_messages'],
                                            help='Checks the specified number of messages the user has in the current mailbox.')
         check_mail.add_argument(
             '-size', default=10, help='Number of messages to check', type=int, required=False)
+        check_mail.add_argument('-latest', type=bool,
+                                default=True, required=False, help='Whether or not to check the latest messages.')
         check_mail.set_defaults(func=lambda: [print(U.mail_from_template(
-            U.mail_from_id(i))) for i in U.check_mail()[:0-(args.size+1):-1]])  # don't even ask
+            U.mail_from_id(i))) for i in U.mail_ids_as_str(args.size, args.latest)])  # don't even ask
         close = subparsers.add_parser('close', aliases=['quit', 'cancel'],
-                                      help='Logout of SMTP and IMAP3 server, close and overwrite all login data.')
+                                      help='Logout of SMTP and IMAP4 server, close and overwrite all login data.')
         close.set_defaults(func=lambda: (
             U.close(), parser.exit()))
         search = subparsers.add_parser('search', aliases=[
@@ -137,7 +139,7 @@ while True:
         getmail.add_argument('-latest', required=False,
                              default=True, type=bool)
         getmail.set_defaults(func=lambda: print(
-            *U.check_mail()[-1:0-(args.size+1):-1 if args.latest else 1]))
+            *U.mail_ids_as_str(args.size, args.latest)))
         crtmailbox = subparsers.add_parser(
             'new_mailbox', aliases=['newmailbox', 'new_mail_box'])
         crtmailbox.add_argument('-name', required=True, type=str,)

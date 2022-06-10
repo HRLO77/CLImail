@@ -131,12 +131,19 @@ class User:
         self.imap_server.delete(mailbox)
         return True  # deleted a mailbox
 
-    def check_mail(self, size: int = -1):
+    def mail_ids_as_str(self, size: int = -1, latest: bool = True):
         '''
-        Returns the ID's of the mails specified.
+        Returns the ID's of the mails specified as a tuple of strings.
         '''
         r, mails = self.imap_server.search(None, 'ALL')
-        return mails[0].split()[:int(size)]
+        return tuple(mails[0].decode().split()[:0-(size+1) if latest else (size+1):-1 if latest else 1])
+
+    def mail_ids_as_bytes(self, size: int = -1, latest: bool = True):
+        '''
+        Returns the ID's of the mails specified as a tuple of bytes.
+        '''
+        r, mails = self.imap_server.search(None, 'ALL')
+        return tuple((mails[0].split()[:0-(size+1) if latest else (size+1):-1 if latest else 1]))
 
     def is_unread(self):
         '''
@@ -151,7 +158,7 @@ class User:
 
     def mail_from_id(self, id: str):
         '''
-        Returns the mail from specified ID, ID can be found with User.check_mail method.
+        Returns the mail from specified ID, ID can be found with User.mail_ids_as_str method.
         Use User.mail_from_template method to convert the mail to a string template.
         '''
 
@@ -236,7 +243,7 @@ class User:
         '''
         Moves amount of mail specified to the trash.
         '''
-        for i in self.check_mail()[:0-(size+1):-1 if latest else 1]:
+        for i in self.mail_ids_as_str()[:0-(size+1) if latest else (size+1):-1 if latest else 1]:
             self.imap_server.store(i, '+FLAGS', '\\Deleted')
         print(f'Deleted {size} messages.')
 
@@ -265,7 +272,7 @@ user = User('password', 'email', server='smtp.outlook.com',
 
 
 Getting the latest mail:
-user.mail_from_template(user.mail_from_id(user.check_mail(-1)[-1]))
+user.mail_from_template(user.mail_from_id(user.mail_ids_as_str(-1)[-1]))
 
 Sending an email:
 
