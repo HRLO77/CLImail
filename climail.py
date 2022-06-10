@@ -180,6 +180,7 @@ class User:
         for i in message.walk():
             if i.get_content_type() == "text/plain":
                 string += i.as_string()
+                break
         string += '\n\nAttachments:\n'
         for i in message.get_payload():
             if i.get_content_type() == 'text/plain':
