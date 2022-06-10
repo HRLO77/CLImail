@@ -100,8 +100,8 @@ while True:
             U.mail_from_id(i))) for i in U.check_mail(-1)[:0-(args.size+1):-1]])  # don't even ask
         close = subparsers.add_parser('close', aliases=['quit', 'cancel'],
                                       help='Logout of SMTP and IMAP3 server, close and overwrite all login data.')
-        close.set_defaults(func=lambda: (U.close(), print(
-            'Closed server.'), parser.exit()))  # don't even ask
+        close.set_defaults(func=lambda: (
+            U.close(), parser.exit()))
         search = subparsers.add_parser('search', aliases=[
             'searchmail', 'searchmessages'], help='Takes in a string and criteria, and returns messages that match.')
         search.add_argument('-string', required=False,
@@ -130,6 +130,11 @@ while True:
         checksingmail.add_argument('-id', required=True, type=int)
         checksingmail.set_defaults(func=lambda: print(
             U.mail_from_template(U.mail_from_id(args.id))))
+        getmail = subparsers.add_parser(
+            'getmail', aliases=['get_mail', 'get_messages'], help='Gets a specified amount of latest messages from the current mailbox.')
+        getmail.add_argument('-size', required=False, default=10, type=int)
+        getmail.set_defaults(func=lambda: print(
+            *U.check_mail()[-1:0-(args.size+1):-1]))
         crtmailbox = subparsers.add_parser(
             'new_mailbox', aliases=['newmailbox', 'new_mail_box'])
         crtmailbox.add_argument('-name', required=True, type=str,)
@@ -138,9 +143,25 @@ while True:
             'removemailbox', 'delete_mail_box'])
         delmailbox.add_argument('-name', required=True, type=str,)
         delmailbox.set_defaults(func=lambda: U.delete_mailbox(args.name))
-
+        delete_mail = subparsers.add_parser('delete_mail', aliases=[
+                                            'deletemail', 'del_mail'], help='Moves number of messages specified to trash.')
+        delete_mail.add_argument('-size', required=False, type=int, default=10)
+        delete_mail.add_argument(
+            '-latest', required=False, type=bool, default=True)
+        delete_mail.set_defaults(
+            func=lambda: U.delete_mail(args.size, args.latest))
+        delete_ids = subparsers.add_parser('delete_mail_ids', aliases=[
+                                           'deletemailids', 'dmi', 'del_mail_ids'], help='Moves mail ID\'s specified to trash.')
+        delete_ids.add_argument('-ids', required=True, type=str, nargs='*')
+        delete_ids.set_defaults(func=lambda: U.delete_mail_ids(args.ids))
+        clear = subparsers.add_parser('clear', aliases=[
+                                      'clear_trash', 'clear_recycling', 'clear_garbage'], help='Permanently deletes all messages in the trash.')
+        clear.set_defaults(func=lambda: U.clear() if input(
+            'Are you sure you want to delete all messages in the trash? (y/n) ').lower() == 'y' else print('Cancelled.'))
         args = parser.parse_args(cmd.split())
         # run the function associated with each command
         args.__dict__['func']()
-    except Exception as e:
+    except BaseException as e:
+        if len(str(e)) < 1 or str(e) == '0':
+            parser.exit()
         print('Error: ', e)

@@ -219,6 +219,7 @@ class User:
         self.imap_server.logout()
         del self.password
         del self.email
+        print('Successfully logged out.')
 
     def list_mailboxes(self):
         '''
@@ -226,8 +227,33 @@ class User:
         '''
         return self.imap_server.list()[1]
 
+    def delete_mail_ids(self, ids: typing.List[int]):
+        '''
+        Moves specified mail ID's to the trash.
+        '''
+        for i in ids:
+            self.imap_server.store(i, '+FLAGS', '\\Deleted')
+        print(f'Deleted {len(ids)} messages.')
+
+    def delete_mail(self, size: int = 10, latest: bool = True):
+        '''
+        Moves amount of mail specified to the trash.
+        '''
+        for i in self.check_mail()[:0-(size+1):-1 if latest else 1]:
+            self.imap_server.store(i, '+FLAGS', '\\Deleted')
+        print(f'Deleted {size} messages.')
+
+    def clear(self):
+        '''
+        Expunges all deleted mail in the current mailbox.
+        '''
+        self.imap_server.expunge()
+        print('Cleared all trash.')
+
 
 '''
+
+
 EXAMPLES:
 
 Normal login:
@@ -235,7 +261,8 @@ user = User('password', 'email')
 
 
 Customized login:
-user = User('password', 'email', server='smtp.outlook.com', smtp_port=587, imap_port=993)
+user = User('password', 'email', server='smtp.outlook.com',
+            smtp_port=587, imap_port=993)
 
 # Ports for SMTP and IMAP servers can be found at https://www.systoolsgroup.com/imap/.
 
@@ -245,9 +272,13 @@ user.mail_from_template(user.mail_from_id(user.check_mail(-1)[-1]))
 
 Sending an email:
 
-user.sendmail('to_address', 'content', subject='subject', cc=['cc_address1', 'cc_address2'], attachments=['file1.txt', 'file2.txt'])
+user.sendmail('to_address', 'content', subject='subject', cc=[
+              'cc_address1', 'cc_address2'], attachments=['file1.txt', 'file2.txt'])
 
-Selecting a mailbox (mailboxes can be found from the User.list_mailboxes method):
+Deleting 10 of the latest messages:
+user.delete_mail(10)
+
+Selecting a mailbox(mailboxes can be found from the User.list_mailboxes method):
 user.select_mailbox('INBOX')
 
 NOTE: to select mailboxes other than INBOX, you must select exactly how they are shown in the User.list_mailboxes method. Sent mailbox for example is shown as "[Gmail]/Sent Mail".
