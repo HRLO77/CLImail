@@ -1,5 +1,6 @@
 import argparse
 import sys
+from weakref import ref
 import climail
 import getpass
 
@@ -97,7 +98,7 @@ while True:
         check_mail.add_argument(
             '-size', default=10, help='Number of messages to check', type=int, required=False)
         check_mail.set_defaults(func=lambda: [print(U.mail_from_template(
-            U.mail_from_id(i))) for i in U.check_mail(-1)[:0-(args.size+1):-1]])  # don't even ask
+            U.mail_from_id(i))) for i in U.check_mail()[:0-(args.size+1):-1]])  # don't even ask
         close = subparsers.add_parser('close', aliases=['quit', 'cancel'],
                                       help='Logout of SMTP and IMAP3 server, close and overwrite all login data.')
         close.set_defaults(func=lambda: (
@@ -126,15 +127,17 @@ while True:
         rename.set_defaults(func=lambda: (U.rename_mailbox(args.old_mailbox, args.new_mailbox), print(
             f'Renamed mailbox {args.old_mailbox} to {args.new_mailbox}.')))
         checksingmail = subparsers.add_parser(
-            'checkmail', aliases=['checkmessages', 'check_mail'])
+            'mail', aliases=['message'], help='Returns the mail content from ID passed.')
         checksingmail.add_argument('-id', required=True, type=int)
         checksingmail.set_defaults(func=lambda: print(
             U.mail_from_template(U.mail_from_id(args.id))))
         getmail = subparsers.add_parser(
             'getmail', aliases=['get_mail', 'get_messages'], help='Gets a specified amount of latest messages from the current mailbox.')
         getmail.add_argument('-size', required=False, default=10, type=int)
+        getmail.add_argument('-latest', required=False,
+                             default=True, type=bool)
         getmail.set_defaults(func=lambda: print(
-            *U.check_mail()[-1:0-(args.size+1):-1]))
+            *U.check_mail()[-1:0-(args.size+1):-1 if args.latest else 1]))
         crtmailbox = subparsers.add_parser(
             'new_mailbox', aliases=['newmailbox', 'new_mail_box'])
         crtmailbox.add_argument('-name', required=True, type=str,)
@@ -158,6 +161,10 @@ while True:
                                       'clear_trash', 'clear_recycling', 'clear_garbage'], help='Permanently deletes all messages in the trash.')
         clear.set_defaults(func=lambda: U.clear() if input(
             'Are you sure you want to delete all messages in the trash? (y/n) ').lower() == 'y' else print('Cancelled.'))
+        refresh = subparsers.add_parser('refresh', aliases=[
+                                        'restart', 'reset', 'reload'], help='Refreshes the current mailbox.')
+
+        refresh.set_defaults(func=lambda: U.refresh())
         args = parser.parse_args(cmd.split())
         # run the function associated with each command
         args.__dict__['func']()

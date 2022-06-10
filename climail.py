@@ -68,7 +68,7 @@ class User:
         # TODO: add support for bcc's
         self.smtp_server.set_debuglevel(1)
         msg = MIMEMultipart()
-        r = reciever
+        r = [reciever, *cc] if not cc is None else reciever
         msg['To'] = reciever
         msg['Date'] = formatdate(localtime=True)
         msg['Cc'] = COMMASPACE.join(cc)
@@ -136,7 +136,7 @@ class User:
         Returns the ID's of the mails specified.
         '''
         r, mails = self.imap_server.search(None, 'ALL')
-        return mails[0].decode().split()[:int(size)]
+        return mails[0].split()[:int(size)]
 
     def is_unread(self):
         '''
@@ -203,6 +203,7 @@ class User:
         '''
         Refreshes the current mailbox and fetches new mails.
         '''
+        self.imap_server.unselect()
         return self.select_mailbox(self.current_mailbox)
 
     def close(self):
