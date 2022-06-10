@@ -68,14 +68,10 @@ class User:
         # TODO: add support for bcc's
         self.smtp_server.set_debuglevel(1)
         msg = MIMEMultipart()
-        if not cc is None:
-            r = [reciever, *cc]
-            msg['To'] = ", ".join(r)
-        else:
-            r = reciever
-            msg['To'] = r
-        msg['To'] = COMMASPACE.join(r)
+        r = reciever
+        msg['To'] = reciever
         msg['Date'] = formatdate(localtime=True)
+        msg['Cc'] = COMMASPACE.join(cc)
         msg['From'] = self.email
         msg['Subject'] = subject
         msg.attach(MIMEText(content, 'plain'))
@@ -155,9 +151,8 @@ class User:
 
     def mail_from_id(self, id: str):
         '''
-        Returns the mail in BYTES from specified ID, ID can be taken with User.check_mail method.
-        Use email.message_from_bytes method to convert the mail to email.message.Message.
-        Retrieve data using message.get("From"), message.get("Date") for instance._
+        Returns the mail from specified ID, ID can be found with User.check_mail method.
+        Use User.mail_from_template method to convert the mail to a string template.
         '''
 
         return email.message_from_bytes(
@@ -165,7 +160,8 @@ class User:
 
     def mail_from_template(self, message: email.message.Message):
         '''
-        Takes a email.message.Message object and creates a message out of a template for it. (Not sure if template is the right word.)
+        Takes a email.message.Message object (object can be found from User.mail_from_id method) and creates a message out of a template for it. (Not sure if template is the right word.)
+        You can change this method to create a template that looks better, your choice.
         '''
         string = '================== Start of Mail ====================\n'
         string += f'From:    {message.get("From")}\n'
