@@ -1,6 +1,5 @@
 import argparse
 import sys
-from weakref import ref
 import climail
 import getpass
 
@@ -97,10 +96,8 @@ while True:
                                            help='Checks the specified number of messages the user has in the current mailbox.')
         check_mail.add_argument(
             '-size', default=10, help='Number of messages to check', type=int, required=False)
-        check_mail.add_argument('-latest', type=bool,
-                                default=True, required=False, help='Whether or not to check the latest messages.')
         check_mail.set_defaults(func=lambda: [print(U.mail_from_template(
-            U.mail_from_id(i))) for i in U.mail_ids_as_str(args.size, args.latest)])  # don't even ask
+            U.mail_from_id(i))) for i in U.mail_ids_as_str(args.size)])  # don't even ask
         close = subparsers.add_parser('close', aliases=['quit', 'cancel'],
                                       help='Logout of SMTP and IMAP4 server, close and overwrite all login data.')
         close.set_defaults(func=lambda: (
@@ -136,10 +133,8 @@ while True:
         getmail = subparsers.add_parser(
             'getmail', aliases=['get_mail', 'get_messages'], help='Gets a specified amount of latest messages from the current mailbox.')
         getmail.add_argument('-size', required=False, default=10, type=int)
-        getmail.add_argument('-latest', required=False,
-                             default=True, type=bool)
         getmail.set_defaults(func=lambda: print(
-            *U.mail_ids_as_str(args.size, args.latest)))
+            *U.mail_ids_as_str(args.size)))
         crtmailbox = subparsers.add_parser(
             'new_mailbox', aliases=['newmailbox', 'new_mail_box'])
         crtmailbox.add_argument('-name', required=True, type=str,)
@@ -151,10 +146,8 @@ while True:
         delete_mail = subparsers.add_parser('delete_mail', aliases=[
                                             'deletemail', 'del_mail'], help='Moves number of messages specified to trash.')
         delete_mail.add_argument('-size', required=False, type=int, default=10)
-        delete_mail.add_argument(
-            '-latest', required=False, type=bool, default=True)
         delete_mail.set_defaults(
-            func=lambda: U.delete_mail(args.size, args.latest))
+            func=lambda: U.delete_mail(args.size))
         delete_ids = subparsers.add_parser('delete_mail_ids', aliases=[
                                            'deletemailids', 'dmi', 'del_mail_ids'], help='Moves mail ID\'s specified to trash.')
         delete_ids.add_argument('-ids', required=True, type=str, nargs='*')

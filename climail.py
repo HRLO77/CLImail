@@ -9,6 +9,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email.utils import COMMASPACE, formatdate
+import base64
 
 
 class User:
@@ -131,19 +132,19 @@ class User:
         self.imap_server.delete(mailbox)
         return True  # deleted a mailbox
 
-    def mail_ids_as_str(self, size: int = -1, latest: bool = True):
+    def mail_ids_as_str(self, size: int = -1):
         '''
         Returns the ID's of the mails specified as a tuple of strings.
         '''
         r, mails = self.imap_server.search(None, 'ALL')
-        return tuple(mails[0].decode().split()[:0-(size+1) if latest else (size+1):-1 if latest else 1])
+        return tuple(mails[0].decode().split()[:0-(size+1):-1].__reversed__())
 
-    def mail_ids_as_bytes(self, size: int = -1, latest: bool = True):
+    def mail_ids_as_bytes(self, size: int = -1):
         '''
         Returns the ID's of the mails specified as a tuple of bytes.
         '''
         r, mails = self.imap_server.search(None, 'ALL')
-        return tuple((mails[0].split()[:0-(size+1) if latest else (size+1):-1 if latest else 1]))
+        return tuple((mails[0].split()[:0-(size+1):-1].__reversed__()))
 
     def is_unread(self):
         '''
@@ -179,7 +180,16 @@ class User:
         string += f'Subject: {message.get("Subject")}\n'
         for i in message.walk():
             if i.get_content_type() == "text/plain":
-                string += i.as_string()
+                s = i.as_string()
+                l = list()
+                print(s.split(' '))
+                for i in s.split(' '):
+                    try:
+                        l.append(base64.b64decode(i.removeprefix('base64').replace(
+                            '\n', '')).decode('utf-8'))
+                    except BaseException:
+                        l.append(i)
+                string += f'Body:\n{" ".join(l)}\n'
                 break
         string += '\n\nAttachments:\n'
         for i in message.get_payload():
@@ -240,11 +250,11 @@ class User:
             self.imap_server.store(i, '+FLAGS', '\\Deleted')
         print(f'Deleted {len(ids)} messages.')
 
-    def delete_mail(self, size: int = 10, latest: bool = True):
+    def delete_mail(self, size: int = 10):
         '''
         Moves amount of mail specified to the trash.
         '''
-        for i in self.mail_ids_as_str()[:0-(size+1) if latest else (size+1):-1 if latest else 1]:
+        for i in self.mail_ids_as_str()[:0-(size+1):-1].__reversed__():
             self.imap_server.store(i, '+FLAGS', '\\Deleted')
         print(f'Deleted {size} messages.')
 
