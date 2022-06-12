@@ -182,14 +182,13 @@ class User:
             if i.get_content_type() == "text/plain":
                 s = i.as_string()
                 l = list()
-                print(s.split(' '))
                 for i in s.split(' '):
                     try:
                         l.append(base64.b64decode(i.removeprefix('base64').replace(
                             '\n', '')).decode('utf-8'))
                     except BaseException:
                         l.append(i)
-                string += f'Body:\n{" ".join(l)}\n'
+                string += f'\nBody:\n\m{" ".join(l)}\n'
                 break
         string += '\n\nAttachments:\n'
         for i in message.get_payload():
