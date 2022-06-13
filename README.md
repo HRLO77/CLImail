@@ -17,7 +17,7 @@ smtp_port=587, imap_port=993)
 Ports for SMTP and IMAP servers can be found at https://www.systoolsgroup.com/imap/.
 
 Getting the latest mail:
-user.mail_from_template(user.mail_from_id(user.mail_ids_as_str(-1)[-1]))
+user.mail_from_template(user.mail_from_id(user.mail_ids_as_str(1)[-1]))
 
 Sending an email:
 

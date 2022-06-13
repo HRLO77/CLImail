@@ -43,7 +43,7 @@ class User:
         # spent two hours here only to find i made a typo :/
         self.smtp_server = smtplib.SMTP_SSL(
             'smtp.' + str(server), int(smtp_port), context=context)
-        print('Starting IMAP server...')
+        print('Starting IMAP4 server...')
         self.imap_server = imaplib.IMAP4_SSL(
             'imap.' + str(server), int(imap_port), ssl_context=context)
         print('Logging in and encrypting...')
@@ -137,14 +137,14 @@ class User:
         Returns the ID's of the mails specified as a tuple of strings.
         '''
         r, mails = self.imap_server.search(None, 'ALL')
-        return tuple(mails[0].decode().split()[:0-(size+1):-1].__reversed__())
+        return tuple(mails[0].decode().split()[0-(size+1):-1:1])
 
     def mail_ids_as_bytes(self, size: int = -1):
         '''
         Returns the ID's of the mails specified as a tuple of bytes.
         '''
         r, mails = self.imap_server.search(None, 'ALL')
-        return tuple((mails[0].split()[:0-(size+1):-1].__reversed__()))
+        return tuple((mails[0].split()[0-(size+1):-1:1]))
 
     def is_unread(self):
         '''
@@ -162,7 +162,6 @@ class User:
         Returns the mail from specified ID, ID can be found with User.mail_ids_as_str method.
         Use User.mail_from_template method to convert the mail to a string template.
         '''
-
         return email.message_from_bytes(
             self.imap_server.fetch(str(id), '(RFC822)')[1][0][1])  # I hate working with bytes
 
@@ -172,6 +171,8 @@ class User:
         You can change this method to create a template that looks better, your choice.
         '''
         string = '================== Start of Mail ====================\n'
+        if 'message-id' in message:
+            string += f'ID:    {message["message-id"]}\n'
         string += f'From:    {message.get("From")}\n'
         string += f'To:      {message.get("To")}\n'
         string += f'Cc:      {message.get("Cc")}\n'
@@ -179,22 +180,35 @@ class User:
         string += f'Date:    {message.get("Date")}\n'
         string += f'Subject: {message.get("Subject")}\n'
         for i in message.walk():
+            if isinstance(i, str):
+                s = i
+                l = list()
+                for b in s.split(' '):
+                    try:
+                        l.append(base64.b64decode(b.removeprefix('base64').replace(
+                            '\n', '')).decode('utf-8'))
+                    except BaseException:
+                        l.append(b)
+                string += f'\nBody:\n\n{" ".join(l)}\n'
+                break
             if i.get_content_type() == "text/plain":
                 s = i.as_string()
                 l = list()
-                for i in s.split(' '):
+                for b in s.split(' '):
                     try:
-                        l.append(base64.b64decode(i.removeprefix('base64').replace(
+                        l.append(base64.b64decode(b.removeprefix('base64').replace(
                             '\n', '')).decode('utf-8'))
                     except BaseException:
-                        l.append(i)
-                string += f'\nBody:\n\m{" ".join(l)}\n'
+                        l.append(b)
+                string += f'\nBody:\n\n{" ".join(l)}\n'
                 break
         string += '\n\nAttachments:\n'
-        for i in message.get_payload():
-            if i.get_content_type() == 'text/plain':
+        for n in message.get_payload():
+            if isinstance(n, str):
                 continue
-            string += f'{i.get_filename()}\n'
+            if n.get_content_type() == 'text/plain':
+                continue
+            string += f'{n.get_filename()}\n'
         string += '\n================== End of Mail ======================\n'
         return string
 
@@ -253,7 +267,7 @@ class User:
         '''
         Moves amount of mail specified to the trash.
         '''
-        for i in self.mail_ids_as_str()[:0-(size+1):-1].__reversed__():
+        for i in self.mail_ids_as_str()[0-(size+1):-1:1]:
             self.imap_server.store(i, '+FLAGS', '\\Deleted')
         print(f'Deleted {size} messages.')
 
@@ -282,7 +296,7 @@ user = User('password', 'email', server='smtp.outlook.com',
 
 
 Getting the latest mail:
-user.mail_from_template(user.mail_from_id(user.mail_ids_as_str(-1)[-1]))
+user.mail_from_template(user.mail_from_id(user.mail_ids_as_str(1)[-1]))
 
 Sending an email:
 

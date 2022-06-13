@@ -1,4 +1,5 @@
 import argparse
+from re import A
 import sys
 import climail
 import getpass
@@ -96,8 +97,11 @@ while True:
                                            help='Checks the specified number of messages the user has in the current mailbox.')
         check_mail.add_argument(
             '-size', default=10, help='Number of messages to check', type=int, required=False)
-        check_mail.set_defaults(func=lambda: [print(U.mail_from_template(
-            U.mail_from_id(i))) for i in U.mail_ids_as_str(args.size)])  # don't even ask
+        check_mail.set_defaults(func=lambda:
+                                list(map(lambda m: print(U.mail_from_template(U.mail_from_id(str(m)))), U.mail_ids_as_str(args.size))))  # don't even ask
+        current = subparsers.add_parser('current', aliases=[
+                                        'current_mailbox', 'current_mail'], help='The current mailbox selected.')
+        current.set_defaults(func=lambda: print(U.current_mailbox))
         close = subparsers.add_parser('close', aliases=['quit', 'cancel'],
                                       help='Logout of SMTP and IMAP4 server, close and overwrite all login data.')
         close.set_defaults(func=lambda: (
@@ -131,7 +135,7 @@ while True:
         checksingmail.set_defaults(func=lambda: print(
             U.mail_from_template(U.mail_from_id(args.id))))
         getmail = subparsers.add_parser(
-            'getmail', aliases=['get_mail', 'get_messages'], help='Gets a specified amount of latest messages from the current mailbox.')
+            'getids', aliases=['get_ids', 'get_mail_ids'], help='Gets a specified amount of latest mail ids from the current mailbox.')
         getmail.add_argument('-size', required=False, default=10, type=int)
         getmail.set_defaults(func=lambda: print(
             *U.mail_ids_as_str(args.size)))
@@ -144,20 +148,20 @@ while True:
         delmailbox.add_argument('-name', required=True, type=str,)
         delmailbox.set_defaults(func=lambda: U.delete_mailbox(args.name))
         delete_mail = subparsers.add_parser('delete_mail', aliases=[
-                                            'deletemail', 'del_mail'], help='Moves number of messages specified to trash.')
+            'deletemail', 'del_mail'], help='Moves number of messages specified to trash.')
         delete_mail.add_argument('-size', required=False, type=int, default=10)
         delete_mail.set_defaults(
             func=lambda: U.delete_mail(args.size))
         delete_ids = subparsers.add_parser('delete_mail_ids', aliases=[
-                                           'deletemailids', 'dmi', 'del_mail_ids'], help='Moves mail ID\'s specified to trash.')
+            'deletemailids', 'dmi', 'del_mail_ids'], help='Moves mail ID\'s specified to trash.')
         delete_ids.add_argument('-ids', required=True, type=str, nargs='*')
         delete_ids.set_defaults(func=lambda: U.delete_mail_ids(args.ids))
         clear = subparsers.add_parser('clear', aliases=[
-                                      'clear_trash', 'clear_recycling', 'clear_garbage'], help='Permanently deletes all messages in the trash.')
+            'clear_trash', 'clear_recycling', 'clear_garbage'], help='Permanently deletes all messages in the trash.')
         clear.set_defaults(func=lambda: U.clear() if input(
             'Are you sure you want to delete all messages in the trash? (y/n) ').lower() == 'y' else print('Cancelled.'))
         refresh = subparsers.add_parser('refresh', aliases=[
-                                        'restart', 'reset', 'reload'], help='Refreshes the current mailbox.')
+            'restart', 'reset', 'reload'], help='Refreshes the current mailbox.')
 
         refresh.set_defaults(func=lambda: U.refresh())
         args = parser.parse_args(cmd.split())
@@ -165,5 +169,8 @@ while True:
         args.__dict__['func']()
     except BaseException as e:
         if len(str(e)) < 1 or str(e) == '0':
-            parser.exit()
+            if 'y' in input('Do you want to quit? (y/n): ').lower():
+                parser.exit()
+            else:
+                continue
         print('Error: ', e)
