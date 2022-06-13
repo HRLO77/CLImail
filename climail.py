@@ -101,7 +101,7 @@ class User:
         Looks for mail with the string provided and requirements.
         '''
         print(string, requirements)
-        return self.imap_server.search(string, requirements)[1][0].decode().split()[:size]
+        return self.imap_server.search(string, requirements)[1][0].decode().split()[0-(size+1):-1:1]
 
     def subscribe(self,
                   mailbox: str):  # and don't forget to hit that like button and click the notificaion bell for more!
