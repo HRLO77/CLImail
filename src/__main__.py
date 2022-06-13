@@ -1,6 +1,4 @@
 import argparse
-from re import A
-import sys
 import climail
 import getpass
 
