@@ -1,0 +1,11 @@
+Metadata-Version: 2.1
+Name: CLImail
+Version: 1.6
+Summary: A Command Line Interface email client written in python.
+Home-page: https://github.com/HRLO77/CLImail
+Author: HRLO77
+Author-email: shakebmohammad.10@gmail.com
+License: MIT
+License-File: LICENSE
+
+A Command Line Interface email client written in python.

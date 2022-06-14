@@ -1,6 +1,7 @@
 import argparse
-import climail
+from . import user as j
 import getpass
+
 
 my_parser = argparse.ArgumentParser(
     description='A CLI email client.', prog='CLImail')
@@ -39,8 +40,8 @@ args = my_parser.parse_args()
 password = getpass.getpass('Password (pasting is not supported): ')
 user = input('Email: ')
 try:
-    U = climail.User(password=password, user=user, server=args.server,
-                     imap_port=args.imap_port, smtp_port=args.smtp_port)  # login
+    U = j.User(password=password, user=user, server=args.server,
+               imap_port=args.imap_port, smtp_port=args.smtp_port)  # login
 except Exception as e:
     print(e)
     my_parser.exit()

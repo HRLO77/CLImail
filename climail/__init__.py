@@ -37,5 +37,5 @@ user.select_mailbox('"[Gmail]/Sent Mail"')
 # the rest of the methods are quite self-explanatory, if you need help DM me at HRLO77#3508 (discord) or HRLO77 (reddit)
 # (Do the smart thing an open a discussion)
 
-# start the CLI by running - python CLImail -server [server] -smtp_port [smtp_port] -imap_port [imap_port]
-# or on unix- $python CLImail -server [server] -smtp_port [smtp_port] -imap_port [imap_port]
+# start the CLI by running - python -m CLImail -server [server] -smtp_port [smtp_port] -imap_port [imap_port]
+# or on unix- $python -m CLImail -server [server] -smtp_port [smtp_port] -imap_port [imap_port]
