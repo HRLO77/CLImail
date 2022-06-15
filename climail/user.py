@@ -98,10 +98,9 @@ class User:
 
     def search(self, string: str = None, requirements: str = '(UNSEEN)', size: int = 10):
         '''
-        Looks for mail with the string provided and requirements.
+        Looks for mail with the string provided and requirements as a tuple of bytes.
         '''
-        print(string, requirements)
-        return self.imap_server.search(string, requirements)[1][0].decode().split()[0-(size+1):-1:1]
+        return tuple(self.imap_server.search(string, requirements)[1][0].split()[-1:0-(size+1):-1])
 
     def subscribe(self,
                   mailbox: str):  # and don't forget to hit that like button and click the notificaion bell for more!
@@ -137,14 +136,14 @@ class User:
         Returns the ID's of the mails specified as a tuple of strings.
         '''
         r, mails = self.imap_server.search(None, 'ALL')
-        return tuple(mails[0].decode().split()[0-(size+1):-1:1])
+        return tuple(mails[0].decode().split()[-1:0-(size+1):-1])
 
     def mail_ids_as_bytes(self, size: int = -1):
         '''
         Returns the ID's of the mails specified as a tuple of bytes.
         '''
         r, mails = self.imap_server.search(None, 'ALL')
-        return tuple((mails[0].split()[0-(size+1):-1:1]))
+        return tuple((mails[0].split()[-1:0-(size+1):-1]))
 
     def is_unread(self):
         '''
@@ -267,7 +266,7 @@ class User:
         '''
         Moves amount of mail specified to the trash.
         '''
-        for i in self.mail_ids_as_str()[0-(size+1):-1:1]:
+        for i in self.mail_ids_as_str()[-1:0-(size+1):-1]:
             self.imap_server.store(i, '+FLAGS', '\\Deleted')
         print(f'Deleted {size} messages.')
 
