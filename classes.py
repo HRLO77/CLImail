@@ -100,7 +100,7 @@ class User:
         '''
         Looks for mail with the string provided and requirements as a tuple of bytes.
         '''
-        return tuple(self.imap_server.search(string, requirements)[1][0].split()[-1:0-(size+1):-1])
+        return tuple(self.imap_server.search(string, requirements)[1][0].split()[-1:0-(size+1):-1].__reversed__())
 
     def subscribe(self,
                   mailbox: str):  # and don't forget to hit that like button and click the notificaion bell for more!
@@ -136,14 +136,14 @@ class User:
         Returns the ID's of the mails specified as a tuple of strings.
         '''
         r, mails = self.imap_server.search(None, 'ALL')
-        return tuple(mails[0].decode().split()[-1:0-(size+1):-1])
+        return tuple(mails[0].decode().split()[-1:0-(size+1):-1].__reversed__())
 
     def mail_ids_as_bytes(self, size: int = -1):
         '''
         Returns the ID's of the mails specified as a tuple of bytes.
         '''
         r, mails = self.imap_server.search(None, 'ALL')
-        return tuple((mails[0].split()[-1:0-(size+1):-1]))
+        return tuple((mails[0].split()[-1:0-(size+1):-1].__reversed__()))
 
     def is_unread(self):
         '''
