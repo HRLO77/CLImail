@@ -1,0 +1,10 @@
+LICENSE
+README.md
+setup.py
+CLImail/__init__.py
+CLImail/__main__.py
+CLImail/classes.py
+CLImail.egg-info/PKG-INFO
+CLImail.egg-info/SOURCES.txt
+CLImail.egg-info/dependency_links.txt
+CLImail.egg-info/top_level.txt
