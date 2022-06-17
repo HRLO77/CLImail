@@ -163,6 +163,10 @@ while True:
             'restart', 'reset', 'reload'], help='Refreshes the current mailbox.')
 
         refresh.set_defaults(func=lambda: U.refresh())
+        contacts = subparsers.add_parser(
+            'contacts', aliases=['get_contacts', 'fetch_contacts'], help='Returns a tuple of most recent contacts in the current mailbox.')
+        contacts.add_argument('-size', required=False, default=10, type=int)
+        contacts.set_defaults(func=lambda: print(U.contacts(args.size)))
         args = parser.parse_args(cmd.split())
         # run the function associated with each command
         args.__dict__['func']()

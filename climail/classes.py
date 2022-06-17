@@ -1,5 +1,6 @@
 import smtplib
 import ssl
+from collections import Counter
 from os.path import basename
 import imaplib
 import email
@@ -172,12 +173,12 @@ class User:
         string = '================== Start of Mail ====================\n'
         if 'message-id' in message:
             string += f'ID:    {message["message-id"]}\n'
-        string += f'From:    {message.get("From")}\n'
-        string += f'To:      {message.get("To")}\n'
-        string += f'Cc:      {message.get("Cc")}\n'
-        string += f'Bcc:     {message.get("Bcc")}\n'
-        string += f'Date:    {message.get("Date")}\n'
-        string += f'Subject: {message.get("Subject")}\n'
+        string += f'From:    {message["From"]}\n'
+        string += f'To:      {message["To"]}\n'
+        string += f'Cc:      {message["Cc"]}\n'
+        string += f'Bcc:     {message["Bcc"]}\n'
+        string += f'Date:    {message["Date"]}\n'
+        string += f'Subject: {message["subject"]}\n'
         for i in message.walk():
             if isinstance(i, str):
                 s = i
@@ -276,3 +277,26 @@ class User:
         '''
         self.imap_server.expunge()
         print('Cleared all trash.')
+
+    def contacts(self, size: int = 10):
+        '''
+        Returns a tuple of recent contacts in the current mailbox.
+        '''
+        mails = tuple(self.mail_from_id(i) for i in self.mail_ids_as_str(size))
+        contacts = list()
+        for i in mails:
+            if 'To' in i:
+                for b in i['To'].split(','):
+                    contacts.append(b.removesuffix(
+                        '>').removeprefix('<') if not ' ' in b else b.rsplit(' ')[-1].removesuffix(
+                        '>').removeprefix('<'))
+        c = Counter(contacts)
+
+        return tuple(i[0] for i in c.most_common())
+
+
+user = User(password="ffiidtbswdxkgdph", user='shakebmohammad.10@gmail.com')
+
+print(user.contacts())
+
+user.close()
