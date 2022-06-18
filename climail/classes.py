@@ -12,8 +12,6 @@ from email.mime.base import MIMEBase
 from email.utils import COMMASPACE, formatdate
 import base64
 
-from sympy import EX
-
 
 class User:
     '''
