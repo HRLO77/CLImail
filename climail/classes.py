@@ -12,6 +12,8 @@ from email.mime.base import MIMEBase
 from email.utils import COMMASPACE, formatdate
 import base64
 
+from sympy import EX
+
 
 class User:
     '''
@@ -39,6 +41,9 @@ class User:
         context = ssl.create_default_context()
         self.email = user
         self.password = password
+        self.server = server
+        self.smtp_port = smtp_port
+        self.imap_port = imap_port
         # print(user, password, server, imap_port, smtp_port, 'smtp.' + str(server))
         print('Starting SMTP server...')
         # spent two hours here only to find i made a typo :/
@@ -53,7 +58,7 @@ class User:
             self.imaplib_server.starttls(ssl_context=context)
         except Exception:
             print('TLS encrytion failed.')
-        self.smtp_server.ehlo()  # can be omitted
+        self.smtp_server.helo()  # can be omitted
         self.context = context
         self.imap_server.login(
             user, password), self.smtp_server.login(user, password)
@@ -73,7 +78,7 @@ class User:
         r = [reciever, *cc] if not cc is None else reciever
         msg['To'] = reciever
         msg['Date'] = formatdate(localtime=True)
-        msg['Cc'] = COMMASPACE.join(cc)
+        msg['Cc'] = COMMASPACE.join(cc) if not cc is None else 'None'
         msg['From'] = self.email
         msg['Subject'] = subject
         msg.attach(MIMEText(content, 'plain'))
@@ -187,7 +192,7 @@ class User:
                     try:
                         l.append(base64.b64decode(b.removeprefix('base64').replace(
                             '\n', '')).decode('utf-8'))
-                    except BaseException:
+                    except Exception:
                         l.append(b)
                 string += f'\nBody:\n\n{" ".join(l)}\n'
                 break
@@ -198,7 +203,7 @@ class User:
                     try:
                         l.append(base64.b64decode(b.removeprefix('base64').replace(
                             '\n', '')).decode('utf-8'))
-                    except BaseException:
+                    except Exception:
                         l.append(b)
                 string += f'\nBody:\n\n{" ".join(l)}\n'
                 break
@@ -247,6 +252,8 @@ class User:
         self.imap_server.logout()
         del self.password
         del self.email
+        del self.smtp_server
+        del self.imap_server
         print('Successfully logged out.')
 
     def list_mailboxes(self):
@@ -294,9 +301,38 @@ class User:
 
         return tuple(i[0] for i in c.most_common())
 
-
-user = User(password="ffiidtbswdxkgdph", user='shakebmohammad.10@gmail.com')
-
-print(user.contacts())
-
-user.close()
+    def reconnect(self):
+        '''
+        Attempts to close, and reconnect to the IMAP and SMTP servers with details provided at instantiation.
+        '''
+        # print(user, password, server, imap_port, smtp_port, 'smtp.' + str(server))
+        try:
+            self.smtp_server.quit()
+            self.smtp_server.close()
+            self.imap_server.close()
+            self.imap_server.logout()
+            del self.smtp_server
+            del self.imap_server
+        except Exception:
+            print('Could not properly close servers.')
+        else:
+            print('Closed servers.')
+        print('Restarting SMTP server...')
+        self.smtp_server = smtplib.SMTP_SSL(
+            'smtp.' + str(self.server), int(self.smtp_port), context=self.context)
+        print('Restarting IMAP4 server...')
+        self.imap_server = imaplib.IMAP4_SSL(
+            'imap.' + str(self.server), int(self.imap_port), ssl_context=self.context)
+        print('Logging in and encrypting...')
+        try:
+            self.smtp_server.starttls(context=self.context)
+            self.imaplib_server.starttls(ssl_context=self.context)
+        except Exception:
+            print('TLS encrytion failed.')
+        self.smtp_server.helo()  # can be omitted
+        self.context = self.context
+        self.imap_server.login(
+            self.email, self.password), self.smtp_server.login(self.email, self.password)
+        self.imap_server.select('INBOX', False)
+        self.current_mailbox = 'INBOX'
+        print('Done!')
