@@ -170,7 +170,7 @@ class User:
 
     def mail_from_ids(self, ids: typing.Iterable[typing.ByteString or typing.AnyStr]):
         '''
-        Takes multiple string or bytes ID's and returns a generator of email.message.Message objects.
+        Takes an iterable of string or bytes ID's and returns a generator of email.message.Message objects.
         '''
         for i in ids:
             yield email.message_from_bytes(
