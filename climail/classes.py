@@ -27,7 +27,7 @@ class User:
         return self.email == other.email and self.password == other.password and self.port == other.port and isinstance(
             other, self.__class__)  # dunno why I added this function
 
-    def __init__(self, password: str, user: str, server: str = "gmail.com", smtp_port: int = 465, imap_port: int = 993):
+    def __init__(self, password: typing.AnyStr, user: typing.AnyStr, server: typing.AnyStr = "gmail.com", smtp_port: int = 465, imap_port: int = 993):
         '''
         All ports and server options available at https://www.systoolsgroup.com/imap/.
         Check it out yourself.
@@ -65,7 +65,7 @@ class User:
         print('Done!')
         # requires error handling on login in case of invalid credentials or access by less secure apps is disabled.
 
-    def sendmail(self, reciever: str, content: str = 'None', subject: str = 'None', cc: typing.List[typing.AnyStr] = None, attachments: typing.List[typing.AnyStr] = None):
+    def sendmail(self, reciever: typing.AnyStr, content: typing.AnyStr = 'None', subject: typing.AnyStr = 'None', cc: typing.List[typing.AnyStr] = None, attachments: typing.List[typing.AnyStr] = None):
         '''
         Sends a basic email to a reciever and the cc.
         Currently doesn't support bcc's.
@@ -93,42 +93,42 @@ class User:
         self.smtp_server.sendmail(self.email, r, text)
         return True  # Message has been sent succesfully!
 
-    def rename_mailbox(self, old: str, new: str):
+    def rename_mailbox(self, old: typing.AnyStr, new: typing.AnyStr):
         '''
         Renames a mailbox.
         '''
         self.imap_server.rename(old, new)
         return True  # Mailbox has been renamed succesfully!
 
-    def search(self, string: str = None, requirements: str = '(UNSEEN)', size: int = 10):
+    def search(self, string: typing.AnyStr = None, requirements: typing.AnyStr = '(UNSEEN)', size: int = 10):
         '''
         Looks for mail with the string provided and requirements as a tuple of bytes.
         '''
         return tuple(self.imap_server.search(string, requirements)[1][0].split()[-1:0-(size+1):-1].__reversed__())
 
     def subscribe(self,
-                  mailbox: str):  # and don't forget to hit that like button and click the notificaion bell for more!
+                  mailbox: typing.AnyStr):  # and don't forget to hit that like button and click the notificaion bell for more!
         '''
         Subscribes to a mail box.
         '''
         self.imap_server.subscribe(mailbox)
         return True  # successfully subscribed
 
-    def unsubscribe(self, mailbox: str):
+    def unsubscribe(self, mailbox: typing.AnyStr):
         '''
         Unsubscribes to a mail box.
         '''
         self.imap_server.unsubscribe(mailbox)
         return True  # successfully unsubscribed
 
-    def create_mailbox(self, mailbox: str):
+    def create_mailbox(self, mailbox: typing.AnyStr):
         '''
         Creates a mailbox.
         '''
         self.imap_server.create(mailbox)
         return True  # Created a mailbox!
 
-    def delete_mailbox(self, mailbox: str):
+    def delete_mailbox(self, mailbox: typing.AnyStr):
         '''
         Deletes a mailbox.
         '''
@@ -160,7 +160,7 @@ class User:
             else:
                 return False
 
-    def mail_from_id(self, id: str):
+    def mail_from_id(self, id: typing.AnyStr):
         '''
         Returns the mail from specified ID, ID can be found with User.mail_ids_as_str method.
         Use User.mail_from_template method to convert the mail to a string template.
@@ -215,7 +215,7 @@ class User:
         string += '\n================== End of Mail ======================\n'
         return string
 
-    def select_mailbox(self, mailbox: str, readonly: bool = False):
+    def select_mailbox(self, mailbox: typing.AnyStr, readonly: bool = False):
         '''
         Selects a mailbox. (All actions pertaining to a mailbox in User.imap_server are affecting the selected mailbox, INBOX, is the default)
         '''
