@@ -13,7 +13,7 @@ Normal login:
 user = User('password', 'email')
 
 Customized login:
-user = User('password', 'email', server='smtp.outlook.com',
+user = User('password', 'email', server='outlook.com',
 smtp_port=587, imap_port=993)
 
 Ports for SMTP and IMAP servers can be found at https://www.systoolsgroup.com/imap/.
