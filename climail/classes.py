@@ -11,6 +11,32 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email.utils import COMMASPACE, formatdate
 import base64
+import inspect
+import functools
+
+# created a decorator that asserts whether or not the function arguments are of the corrent type, but it doesn't work with "typing" module typehints :(
+
+
+def force(func):
+    '''
+    Forces annotation on arguments of functions.
+    '''
+    sig = inspect.signature(func)
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        bound_arguments = sig.bind(*args, **kwargs).arguments
+        c = dict()
+        for i, v in sig.parameters.items():
+            if v.kind == v.POSITIONAL_OR_KEYWORD:
+                if v.annotation != v.empty:
+                    c[v.name] = v.annotation(bound_arguments[v.name])
+                else:
+                    c[v.name] = bound_arguments[v.name]
+            else:
+                c[v.name] = bound_arguments[v.name]
+        return func(**c)
+    return wrapper
 
 
 class User:
@@ -160,7 +186,7 @@ class User:
             else:
                 return False
 
-    def mail_from_id(self, id: typing.ByteString or typing.AnyStr):
+    def mail_from_id(self, id: typing.ByteString or typing.AnyStr) -> email.message.Message:
         '''
         Returns the mail from specified ID, ID can be found with User.mail_ids_as_str method.
         Use User.mail_from_template method to convert the mail to a string template.
@@ -168,7 +194,7 @@ class User:
         return email.message_from_bytes(
             self.imap_server.fetch(str(id), '(RFC822)')[1][0][1])  # I hate working with bytes
 
-    def mail_from_ids(self, ids: typing.Iterable[typing.ByteString or typing.AnyStr]):
+    def mail_from_ids(self, ids: typing.Iterable[typing.ByteString or typing.AnyStr]) -> typing.Generator:
         '''
         Takes an iterable of string or bytes ID's and returns a generator of email.message.Message objects.
         '''
