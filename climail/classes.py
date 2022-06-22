@@ -30,7 +30,10 @@ def force(func):
         for i, v in sig.parameters.items():
             if v.kind == v.POSITIONAL_OR_KEYWORD:
                 if v.annotation != v.empty:
-                    c[v.name] = v.annotation(bound_arguments[v.name])
+                    if not(isinstance(bound_arguments[v.name], v.annotation)):
+                        c[v.name] = v.annotation(bound_arguments[v.name])
+                    else:
+                        c[v.name] = bound_arguments[v.name]
                 else:
                     c[v.name] = bound_arguments[v.name]
             else:
