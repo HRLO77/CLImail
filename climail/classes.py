@@ -189,7 +189,7 @@ class User:
             else:
                 return False
 
-    def mail_from_id(self, id: typing.ByteString or typing.AnyStr) -> email.message.Message:
+    def mail_from_id(self, id: typing.Union[typing.ByteString, typing.AnyStr]) -> email.message.Message:
         '''
         Returns the mail from specified ID, ID can be found with User.mail_ids_as_str method.
         Use User.mail_from_template method to convert the mail to a string template.
@@ -197,7 +197,7 @@ class User:
         return email.message_from_bytes(
             self.imap_server.fetch(str(id), '(RFC822)')[1][0][1])  # I hate working with bytes
 
-    def mail_from_ids(self, ids: typing.Iterable[typing.ByteString or typing.AnyStr]) -> typing.Generator:
+    def mail_from_ids(self, ids: typing.Iterable[typing.Union[typing.ByteString, typing.AnyStr]]) -> typing.Generator:
         '''
         Takes an iterable of string or bytes ID's and returns a generator of email.message.Message objects.
         '''
