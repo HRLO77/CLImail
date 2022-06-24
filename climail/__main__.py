@@ -1,5 +1,5 @@
 import argparse
-from . import classes as j
+import classes as j
 import getpass
 
 
