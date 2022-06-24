@@ -170,6 +170,13 @@ while True:
         recon = subparsers.add_parser(
             'reconnect', help='Reconnects to the SMTP and IMAP4 servers.')
         recon.set_defaults(func=lambda: U.reconnect())
+        save = subparsers.add_parser(
+            'save', aliases=['save_attachments', 'save_files', 'savefiles', 'sf'], help='Saves all the attachments from an email to directory specified.')
+        save.add_argument('-path', type=str, default=r'/tmp', required=False)
+        save.add_argument('-id', type=int, required=True)
+        save.set_defaults(func=lambda: print(
+            *U.save_attachments(U.mail_from_id(args.id), args.path), sep='\n'))
+
         args = parser.parse_args(cmd.split())
         # run the function associated with each command
         args.__dict__['func']()

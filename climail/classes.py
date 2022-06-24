@@ -13,6 +13,8 @@ from email.utils import COMMASPACE, formatdate
 import base64
 import inspect
 import functools
+import os
+import pathlib
 
 # created a decorator that asserts whether or not the function arguments are of the corrent type, but it doesn't work with "typing" module typehints :(
 
@@ -56,7 +58,7 @@ class User:
         return self.email == other.email and self.password == other.password and self.port == other.port and isinstance(
             other, self.__class__)  # dunno why I added this function
 
-    def __init__(self, password: typing.AnyStr, user: typing.AnyStr, server: typing.AnyStr = "gmail.com", smtp_port: int = 465, imap_port: int = 993):
+    def __init__(self, password: typing.AnyStr, user: typing.AnyStr, server: typing.AnyStr = "gmail.com", smtp_port: typing.SupportsInt = 465, imap_port: typing.SupportsInt = 993):
         '''
         All ports and server options available at https://www.systoolsgroup.com/imap/.
         Check it out yourself.
@@ -129,7 +131,7 @@ class User:
         self.imap_server.rename(old, new)
         return True  # Mailbox has been renamed succesfully!
 
-    def search(self, string: typing.AnyStr = None, requirements: typing.AnyStr = '(UNSEEN)', size: int = 10):
+    def search(self, string: typing.AnyStr = None, requirements: typing.AnyStr = '(UNSEEN)', size: typing.SupportsInt = 10):
         '''
         Looks for mail with the string provided and requirements as a tuple of bytes.
         '''
@@ -164,14 +166,14 @@ class User:
         self.imap_server.delete(mailbox)
         return True  # deleted a mailbox
 
-    def mail_ids_as_str(self, size: int = -1):
+    def mail_ids_as_str(self, size: typing.SupportsInt = -1):
         '''
         Returns the ID's of the mails specified as a tuple of strings.
         '''
         r, mails = self.imap_server.search(None, 'ALL')
         return tuple(mails[0].decode().split()[-1:0-(size+1):-1].__reversed__())
 
-    def mail_ids_as_bytes(self, size: int = -1):
+    def mail_ids_as_bytes(self, size: typing.SupportsInt = -1):
         '''
         Returns the ID's of the mails specified as a tuple of bytes.
         '''
@@ -205,6 +207,7 @@ class User:
             yield email.message_from_bytes(
                 self.imap_server.fetch(i, '(RFC822)')[1][0][1])
 
+    @force
     def mail_from_template(self, message: email.message.Message):
         '''
         Takes a email.message.Message object (object can be found from User.mail_from_id method) and creates a message out of a template for it. (Not sure if template is the right word.)
@@ -241,16 +244,31 @@ class User:
                     except Exception:
                         l.append(b)
                 string += f'\nBody:\n\n{" ".join(l)}\n'
-                break
         string += '\n\nAttachments:\n'
         for n in message.get_payload():
             if isinstance(n, str):
                 continue
-            if n.get_content_type() == 'text/plain':
-                continue
-            string += f'{n.get_filename()}\n'
+            if n.get_content_type().startswith('application') or n.get_content_type().startswith('image'):
+                string += f'{n.get_filename()}\n'
         string += '\n================== End of Mail ======================\n'
         return string
+
+    def save_attachments(self, message: email.message.Message, path: typing.AnyStr = r'/tmp') -> typing.Generator:
+        '''
+        Saves all attachments of an email to the directory specified, returns a generator of paths.
+        '''
+        for n in message.get_payload():
+            if isinstance(n, str):
+                continue
+            if n.get_content_type().startswith('application') or n.get_content_type().startswith('image'):
+                name = n.get_filename()
+                p = os.path.join(path, name)
+
+                if not os.path.exists(p):
+                    fp = open(p, 'wb')
+                    fp.write(n.get_payload(decode=True))
+                    fp.close()
+                yield p
 
     def select_mailbox(self, mailbox: typing.AnyStr, readonly: bool = False):
         '''
@@ -305,7 +323,7 @@ class User:
             self.imap_server.store(i, '+FLAGS', '\\Deleted')
         print(f'Deleted {len(ids)} messages.')
 
-    def delete_mail(self, size: int = 10):
+    def delete_mail(self, size: typing.SupportsInt = 10):
         '''
         Moves amount of mail specified to the trash.
         '''
@@ -320,7 +338,7 @@ class User:
         self.imap_server.expunge()
         print('Cleared all trash.')
 
-    def contacts(self, size: int = 10):
+    def contacts(self, size: typing.SupportsInt = 10):
         '''
         Returns a tuple of recent contacts in the current mailbox.
         '''
