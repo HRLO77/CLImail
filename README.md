@@ -19,7 +19,7 @@ smtp_port=587, imap_port=993)
 Ports for SMTP and IMAP servers can be found at https://www.systoolsgroup.com/imap/.
 
 Getting the latest mail:
-user.mail_from_template(user.mail_from_id(user.mail_ids_as_str(1)[-1]))
+user.mail_from_template(user.mail_from_id(user.mail_ids_as_str(1)[0]))
 
 Sending an email:
 
@@ -34,6 +34,9 @@ user.select_mailbox('INBOX')
 
 NOTE: to select mailboxes other than INBOX, you must select exactly how they are shown in the User.list_mailboxes method. Sent mailbox for example is shown as "[Gmail]/Sent Mail".
 user.select_mailbox('"[Gmail]/Sent Mail"')
+
+Saving all attachments from the latest message:
+user.save_attachments(user.mail_from_id(user.mail_ids_as_str(1)[0]))
 
 The rest of the methods are quite self-explanatory, if you need help DM me at HRLO77#3508 (discord) or HRLO77 (reddit)
 (Do the smart thing an open a discussion)

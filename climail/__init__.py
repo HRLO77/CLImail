@@ -1,4 +1,4 @@
-__version__ = "1.7.1"
+__version__ = "1.7.2"
 
 '''
 
@@ -17,7 +17,7 @@ user = User('password', 'email', server='outlook.com',
 
 
 Getting the latest mail:
-user.mail_from_template(user.mail_from_id(user.mail_ids_as_str(1)[-1]))
+user.mail_from_template(user.mail_from_id(user.mail_ids_as_str(1)[0]))
 
 Sending an email:
 
@@ -29,6 +29,9 @@ user.delete_mail(10)
 
 Selecting a mailbox(mailboxes can be found from the User.list_mailboxes method):
 user.select_mailbox('INBOX')
+
+Saving all attachments from the latest message:
+user.save_attachments(user.mail_from_id(user.mail_ids_as_str(1)[0]))
 
 NOTE: to select mailboxes other than INBOX, you must select exactly how they are shown in the User.list_mailboxes method. Sent mailbox for example is shown as "[Gmail]/Sent Mail".
 user.select_mailbox('"[Gmail]/Sent Mail"')
