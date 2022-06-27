@@ -266,7 +266,7 @@ class User:
             if n.get_content_type().startswith('application') or n.get_content_type().startswith('image'):
                 name = n.get_filename()
                 p = os.path.join(path, name)
-                p.replace('\\', '/')
+                p.replace('/', '\\')
 
                 if not os.path.exists(p):
                     with open(p, 'wb') as fp:
