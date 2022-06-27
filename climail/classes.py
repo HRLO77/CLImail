@@ -16,6 +16,7 @@ import functools
 import os
 import pathlib
 import requests
+import colorama
 
 # created a decorator that asserts whether or not the function arguments are of the corrent type, but it doesn't work with "typing" module typehints :(
 
@@ -254,21 +255,22 @@ class User:
         string += '\n================== End of Mail ======================\n'
         return string
 
-    def save_attachments(self, message: email.message.Message, path: typing.AnyStr = r'/tmp') -> typing.Generator:
+    def save_attachments(self, message: email.message.Message, path: typing.AnyStr = r'\tmp') -> typing.Generator:
         '''
         Saves all attachments of an email to the directory specified, returns a generator of paths.
         '''
+        colorama.init(True)
         for n in message.get_payload():
             if isinstance(n, str):
                 continue
             if n.get_content_type().startswith('application') or n.get_content_type().startswith('image'):
                 name = n.get_filename()
                 p = os.path.join(path, name)
+                p.replace('\\', '/')
 
                 if not os.path.exists(p):
-                    fp = open(p, 'wb')
-                    fp.write(n.get_payload(decode=True))
-                    fp.close()
+                    with open(p, 'wb') as fp:
+                        fp.write(n.get_payload(decode=True))
                 yield p
 
     def select_mailbox(self, mailbox: typing.AnyStr, readonly: bool = False):
