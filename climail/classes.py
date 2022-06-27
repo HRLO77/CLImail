@@ -15,6 +15,7 @@ import inspect
 import functools
 import os
 import pathlib
+import requests
 
 # created a decorator that asserts whether or not the function arguments are of the corrent type, but it doesn't work with "typing" module typehints :(
 
