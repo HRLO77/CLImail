@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='CLImail',
-    version='1.7.5',
+    version='1.7.9',
     license='MIT',
     author="HRLO77",
     author_email='shakebmohammad.10@gmail.com',
