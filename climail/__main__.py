@@ -100,8 +100,10 @@ while True:
             '-size', default=10, help='Number of messages to check', type=int, required=False)
         check_mail.add_argument(
             '-save', type=bool, default=False, required=False)
+        check_mail.add_argument('-path', default=r'\tmp',
+                                required=False, type=str)
         check_mail.set_defaults(func=lambda:
-                                list(map(lambda m: (print(U.mail_from_template(U.mail_from_id(m))), [print(colorama.Fore.GREEN + f'{i.rsplit("/")[-1]} was saved at {i}!') for i in U.save_attachments(U.mail_from_id(m))] if args.save else None), U.mail_ids_as_str(args.size))))  # don't even ask
+                                list(map(lambda m: (print(U.mail_from_template(U.mail_from_id(m))), [print(colorama.Fore.GREEN + f'{i.rsplit("/")[-1]} was saved at {i}!') for i in U.save_attachments(U.mail_from_id(m), args.path)] if args.save else None), U.mail_ids_as_str(args.size))))  # don't even ask
         current = subparsers.add_parser('current', aliases=[
                                         'current_mailbox', 'current_mail'], help='The current mailbox selected.')
         current.set_defaults(func=lambda: print(U.current_mailbox))
