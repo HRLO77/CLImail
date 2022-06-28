@@ -10,8 +10,8 @@ user = User('password', 'email')
 
 
 Customized login:
-user = User('password', 'email', smtp_server='smtp.outlook.com', imap_server='imap.outlook.com',
-            smtp_port=587, imap_port=993)
+user = User('password', 'email', smtp_server='smtp-mail.outlook.com', imap_server='imap-mail.outlook.com',
+smtp_port=587, imap_port=993)
 
 # Ports for SMTP and IMAP servers can be found at https://www.systoolsgroup.com/imap/.
 
