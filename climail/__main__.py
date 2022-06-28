@@ -24,7 +24,7 @@ my_parser.add_argument('-smtp_server',
                        default='smtp.gmail.com',
                        required=False)
 my_parser.add_argument('-imap_server',
-                       metavar='smtp_server',
+                       metavar='imap_server',
                        type=str,
                        help='The imap server to sign in with, i.e gmail.com or outlook.com',
                        default='imap.gmail.com',
