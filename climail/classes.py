@@ -58,7 +58,7 @@ class User:
         return self.email == other.email and self.password == other.password and self.port == other.port and isinstance(
             other, self.__class__)  # dunno why I added this function
 
-    def __init__(self, password: typing.AnyStr, user: typing.AnyStr, smtp_server: typing.AnyStr = "smtp.gmail.com", imap_server: typing.AnyString = 'imap.gmail.com', smtp_port: typing.SupportsInt = 465, imap_port: typing.SupportsInt = 993):
+    def __init__(self, password: typing.AnyStr, user: typing.AnyStr, smtp_server: typing.AnyStr = "smtp.gmail.com", imap_server: typing.AnyStr = 'imap.gmail.com', smtp_port: typing.SupportsInt = 465, imap_port: typing.SupportsInt = 993):
         '''
         All ports and server options available at https://www.systoolsgroup.com/imap/.
         Check it out yourself.
