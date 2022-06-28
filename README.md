@@ -41,6 +41,6 @@ user.save_attachments(user.mail_from_id(user.mail_ids_as_str(1)[0]))
 The rest of the methods are quite self-explanatory, if you need help DM me at HRLO77#3508 (discord) or HRLO77 (reddit)
 (Do the smart thing an open a discussion)
 
-Start the CLI by running - python -m CLImail -server [server] -smtp_port [smtp_port] -imap_port [imap_port]
+Start the CLI by running - python -m CLImail -smtp_server [server] -imap_server [server] -smtp_port [smtp_port] -imap_port [imap_port]
 
-Or on unix- $python -m CLImail -server [server] -smtp_port [smtp_port] -imap_port [imap_port]
+Or on unix- $python -m CLImail -smtp_server [server] -imap_server [server] -smtp_port [smtp_port] -imap_port [imap_port]

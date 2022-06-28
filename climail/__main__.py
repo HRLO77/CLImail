@@ -17,21 +17,27 @@ my_parser = argparse.ArgumentParser(
 #                        type=str,
 #                        help='The password to sign in to the email with.',
 #                        required=True)
-my_parser.add_argument('-server',
-                       metavar='server',
+my_parser.add_argument('-smtp_server',
+                       metavar='smtp_server',
                        type=str,
-                       help='The server to sign in with, i.e gmail.com or outlook.com',
-                       default='gmail.com',
+                       help='The smtp server to sign in with, i.e gmail.com or outlook.com',
+                       default='smtp.gmail.com',
+                       required=False)
+my_parser.add_argument('-imap_server',
+                       metavar='smtp_server',
+                       type=str,
+                       help='The imap server to sign in with, i.e gmail.com or outlook.com',
+                       default='imap.gmail.com',
                        required=False)
 my_parser.add_argument('-smtp_port',
                        metavar='smtp_port',
-                       type=str,
+                       type=int,
                        help='The port to sign into the SMTP server with, is defaulted to 465',
                        default=465,
                        required=False)
 my_parser.add_argument('-imap_port',
                        metavar='imap_port',
-                       type=str,
+                       type=int,
                        help='The port to sign into the IMAP4 server with, is defaulted to 993',
                        default=993,
                        required=False)
@@ -41,8 +47,8 @@ args = my_parser.parse_args()
 password = getpass.getpass('Password (pasting is not supported): ')
 user = input('Email: ')
 try:
-    U = j.User(password=password, user=user, server=args.server,
-               imap_port=args.imap_port, smtp_port=args.smtp_port)  # login
+    U = j.User(password=password, user=user, smtp_server=args.smtp_server,
+               imap_port=args.imap_port, smtp_port=args.smtp_port, imap_server=args.imap_server)  # login
 except Exception as e:
     print(e)
     my_parser.exit()

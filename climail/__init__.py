@@ -1,4 +1,4 @@
-__version__ = "1.8.5"
+__version__ = "1.8.6"
 
 '''
 
@@ -10,7 +10,7 @@ user = User('password', 'email')
 
 
 Customized login:
-user = User('password', 'email', server='outlook.com',
+user = User('password', 'email', smtp_server='smtp.outlook.com', imap_server='imap.outlook.com',
             smtp_port=587, imap_port=993)
 
 # Ports for SMTP and IMAP servers can be found at https://www.systoolsgroup.com/imap/.
@@ -40,5 +40,6 @@ user.select_mailbox('"[Gmail]/Sent Mail"')
 # the rest of the methods are quite self-explanatory, if you need help DM me at HRLO77#3508 (discord) or HRLO77 (reddit)
 # (Do the smart thing an open a discussion)
 
-# start the CLI by running - python -m CLImail -server [server] -smtp_port [smtp_port] -imap_port [imap_port]
-# or on unix- $python -m CLImail -server [server] -smtp_port [smtp_port] -imap_port [imap_port]
+# Start the CLI by running - python -m CLImail -smtp_server [server] -imap_server [server] -smtp_port [smtp_port] -imap_port [imap_port]
+
+# Or on unix- $python -m CLImail -smtp_server [server] -imap_server [server] -smtp_port [smtp_port] -imap_port [imap_port]

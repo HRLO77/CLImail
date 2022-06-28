@@ -58,7 +58,7 @@ class User:
         return self.email == other.email and self.password == other.password and self.port == other.port and isinstance(
             other, self.__class__)  # dunno why I added this function
 
-    def __init__(self, password: typing.AnyStr, user: typing.AnyStr, server: typing.AnyStr = "gmail.com", smtp_port: typing.SupportsInt = 465, imap_port: typing.SupportsInt = 993):
+    def __init__(self, password: typing.AnyStr, user: typing.AnyStr, smtp_server: typing.AnyStr = "smtp.gmail.com", imap_server: typing.AnyString = 'imap.gmail.com', smtp_port: typing.SupportsInt = 465, imap_port: typing.SupportsInt = 993):
         '''
         All ports and server options available at https://www.systoolsgroup.com/imap/.
         Check it out yourself.
@@ -70,17 +70,18 @@ class User:
         context = ssl.create_default_context()
         self.email = user
         self.password = password
-        self.server = server
+        self.smtp_server = smtp_server
+        self.imap_server = imap_server
         self.smtp_port = smtp_port
         self.imap_port = imap_port
         # print(user, password, server, imap_port, smtp_port, 'smtp.' + str(server))
         print('Starting SMTP server...')
         # spent two hours here only to find i made a typo :/
         self.smtp_server = smtplib.SMTP_SSL(
-            'smtp.' + str(server), int(smtp_port), context=context)
+            str(smtp_server), int(smtp_port), context=context)
         print('Starting IMAP4 server...')
         self.imap_server = imaplib.IMAP4_SSL(
-            'imap.' + str(server), int(imap_port), ssl_context=context)
+            str(imap_server), int(imap_port), ssl_context=context)
         print('Logging in and encrypting...')
         try:
             self.smtp_server.starttls(context=context)
@@ -373,10 +374,10 @@ class User:
             print('Closed servers.')
         print('Restarting SMTP server...')
         self.smtp_server = smtplib.SMTP_SSL(
-            'smtp.' + str(self.server), int(self.smtp_port), context=self.context)
+            'smtp.' + str(self.smtp_server), int(self.smtp_port), context=self.context)
         print('Restarting IMAP4 server...')
         self.imap_server = imaplib.IMAP4_SSL(
-            'imap.' + str(self.server), int(self.imap_port), ssl_context=self.context)
+            'imap.' + str(self.imap_server), int(self.imap_port), ssl_context=self.context)
         print('Logging in and encrypting...')
         try:
             self.smtp_server.starttls(context=self.context)
