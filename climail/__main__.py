@@ -46,14 +46,9 @@ my_parser.add_argument('-imap_port',
 args = my_parser.parse_args()
 password = getpass.getpass('Password (pasting is not supported): ')
 user = input('Email: ')
-try:
-    U = j.User(password=password, user=user, smtp_server=args.smtp_server,
+U = j.User(password=password, user=user, smtp_server=args.smtp_server,
                imap_port=args.imap_port, smtp_port=args.smtp_port, imap_server=args.imap_server)  # login
-except Exception as e:
-    print(e)
-    my_parser.exit()
-else:
-    print('Logged in as', user)
+print('Logged in as', user)
 while True:
     try:
         colorama.init(True)
