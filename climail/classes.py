@@ -1,3 +1,4 @@
+from genericpath import isfile
 import smtplib
 import ssl
 from collections import Counter
@@ -266,8 +267,9 @@ class User:
                 name = n.get_filename()
                 p = os.path.join(path, name)
                 p.replace('/', '\\')
-
-                if not os.path.exists(p):
+                if not os.path.isdir(path):
+                    os.mkdir(path)
+                if not os.path.isfile(p):
                     with open(p, 'wb') as fp:
                         fp.write(n.get_payload(decode=True))
                 yield p
