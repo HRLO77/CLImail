@@ -1,4 +1,3 @@
-from genericpath import isfile
 import smtplib
 import ssl
 from collections import Counter
