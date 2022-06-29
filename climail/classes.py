@@ -1,8 +1,6 @@
-from genericpath import isfile
 import smtplib
 import ssl
 from collections import Counter
-from os.path import basename
 import imaplib
 import email
 import typing
@@ -119,8 +117,9 @@ class User:
             for attachment in attachments:  # add the attachments
                 part = MIMEApplication(
                     attachment.read(),
-                    Name=attachment.name)
-                part['Content-Disposition'] = 'attachment; filename="%s"' % attachment.name
+                    Name=os.path.basename(attachment.name))
+                part['Content-Disposition'] = 'attachment; filename="%s"' % os.path.basename(
+                    attachment.name)
                 msg.attach(part)
         text = msg.as_string()
         self.smtp_server.sendmail(self.email, r, text)
@@ -264,7 +263,7 @@ class User:
             if isinstance(n, str):
                 continue
             if n.get_content_type().startswith('application') or n.get_content_type().startswith('image'):
-                name = n.get_filename()
+                name = n.get_filename().replace(' ', '_')
                 p = os.path.join(path, name)
                 p.replace('/', '\\')
                 if not os.path.isdir(path):
