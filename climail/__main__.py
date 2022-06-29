@@ -62,7 +62,7 @@ while True:
         subparsers = parser.add_subparsers()
         help = subparsers.add_parser('help',
                                      help='Shows this message.')
-        help.set_defaults(func=lambda: parser.print_help())
+        help.set_defaults(func=parser.print_help)
         selectmail = subparsers.add_parser('selectmailbox', aliases=['select_mailbox', 'select'],
                                            help='Selects a mailbox. \n NOTE: all mailboxes can be found with the "lmb" command.')
         selectmail.add_argument('-mailbox', required=True,
