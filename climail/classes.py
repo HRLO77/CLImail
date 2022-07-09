@@ -87,7 +87,7 @@ class User:
             self.imaplib_server.starttls(ssl_context=context)
         except Exception:
             print('TLS encrytion failed.')
-        self.smtp_server.helo()  # can be omitted
+        self.smtp_server.ehlo_or_helo_if_needed(), self.imap_server.noop()  # can be omitted
         self.context = context
         self.imap_server.login(
             user, password), self.smtp_server.login(user, password)
@@ -392,3 +392,8 @@ class User:
         self.imap_server.select('INBOX', False)
         self.current_mailbox = 'INBOX'
         print('Done!')
+
+    def copy_mails(self, ids: typing.Iterable[typing.AnyStr or typing.ByteString], folder: typing.AnyStr):
+        '''
+        Copies mail ids to new folder'''
+        self.imap_server.copy(':'.join(ids), folder)
