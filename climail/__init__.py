@@ -1,6 +1,6 @@
-__version__ = "1.9.1"
+__version__ = "1.9.3"
 
-'''
+"""
 
 
 EXAMPLES:
@@ -35,7 +35,7 @@ user.save_attachments(user.mail_from_id(user.mail_ids_as_str(1)[0]))
 
 NOTE: to select mailboxes other than INBOX, you must select exactly how they are shown in the User.list_mailboxes method. Sent mailbox for example is shown as "[Gmail]/Sent Mail".
 user.select_mailbox('"[Gmail]/Sent Mail"')
-'''
+"""
 
 # the rest of the methods are quite self-explanatory, if you need help DM me at HRLO77#3508 (discord) or HRLO77 (reddit)
 # (Do the smart thing an open a discussion)
