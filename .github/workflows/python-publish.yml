@@ -31,9 +31,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install build
         pip install poetry
-        echo password
-        echo user
-        poetry publish -p password -u user --build
+        poetry publish -p ${{ secrets.PYPI_API_TOKEN}} -u ${{ secrets.PYPI_USER }} --build
     - name: Build package
       run: python -m build
     - name: Publish package
