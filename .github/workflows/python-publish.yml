@@ -31,6 +31,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install build
         pip install poetry
+        echo password
+        echo user
         poetry publish -p password -u user --build
     - name: Build package
       run: python -m build
