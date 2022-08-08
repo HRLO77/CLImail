@@ -423,7 +423,7 @@ class User:
             del self.smtp_server
             del self.imap_server
         except Exception:
-            print("Could not properly close servers.")
+            print("Couldn't properly close servers.")
         else:
             print("Closed servers.")
         print("Restarting SMTP server...")
