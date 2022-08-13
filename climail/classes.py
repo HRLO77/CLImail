@@ -7,7 +7,6 @@ import typing
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
 from email.utils import COMMASPACE, formatdate
 import base64
 import inspect

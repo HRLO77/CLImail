@@ -1,7 +1,7 @@
 import argparse
 import getpass
 
-import classes as j
+from . import classes as j
 import colorama
 
 my_parser = argparse.ArgumentParser(description="A CLI email client.", prog="CLImail")
