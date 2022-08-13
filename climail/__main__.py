@@ -82,14 +82,10 @@ while True:
             help='Selects a mailbox. \n NOTE: all mailboxes can be found with the "lmb" command.',
         )
         selectmail.add_argument(
-            "-mailbox", required=True, help="The mailbox to select.", nargs="*"
+            "mailbox", help="The mailbox to select.", nargs="*"
         )
         selectmail.add_argument(
-            "-readonly",
-            required=False,
-            help="Readonly mode or not.",
-            type=bool,
-            default=False,
+            "--readonly", required=False, type=bool, default=False, const=True, nargs='?'
         )
         selectmail.set_defaults(
             func=lambda: U.select_mailbox(" ".join(args.mailbox), args.readonly)
@@ -171,13 +167,11 @@ while True:
             help="Checks the specified number of messages the user has in the current mailbox.",
         )
         check_mail.add_argument(
-            "-size",
-            default=10,
+            "size",
             help="Number of messages to check",
             type=int,
-            required=False,
         )
-        check_mail.add_argument("-save", type=bool, default=False, required=False)
+        check_mail.add_argument("--save", required=False, type=bool, default=False, const=True, nargs='?')
         check_mail.add_argument("-path", default=r"\tmp", required=False, type=str)
         check_mail.set_defaults(
             func=lambda: list(
@@ -233,21 +227,21 @@ while True:
             ]
         )
         subscribe = subparsers.add_parser("subscribe", help="Subscribes to a mailbox.")
-        subscribe.add_argument("-mailbox", required=True, type=str)
+        subscribe.add_argument("mailbox", type=str)
         subscribe.set_defaults(func=lambda: U.subscribe(args.mailbox))
         unsubscribe = subparsers.add_parser(
             "unsubscribe", help="Unsubscribes TO a mailbox."
         )
-        unsubscribe.add_argument("-mailbox", required=True, type=str)
+        unsubscribe.add_argument("mailbox", type=str)
         unsubscribe.set_defaults(func=lambda: U.unsubscribe(args.mailbox))
         rename = subparsers.add_parser("rename", aliases=["renamemailbox", "renamebox"])
         rename.add_argument(
-            "-old_mailbox",
+            "-old",
             required=True,
             type=str,
         )
         rename.add_argument(
-            "-new_mailbox",
+            "-new",
             required=True,
             type=str,
         )
@@ -260,7 +254,7 @@ while True:
         checksingmail = subparsers.add_parser(
             "mail", aliases=["message"], help="Returns the mail content from ID passed."
         )
-        checksingmail.add_argument("-id", required=True, type=int)
+        checksingmail.add_argument("id", type=int)
         checksingmail.set_defaults(
             func=lambda: print(U.mail_from_template(U.mail_from_id(args.id)))
         )
@@ -269,7 +263,7 @@ while True:
             aliases=["get_ids", "get_mail_ids"],
             help="Gets a specified amount of latest mail ids from the current mailbox.",
         )
-        getmail.add_argument("-size", required=False, default=10, type=int)
+        getmail.add_argument("size", type=int)
         getmail.set_defaults(func=lambda: print(*U.mail_ids_as_str(args.size)))
         crtmailbox = subparsers.add_parser(
             "new_mailbox", aliases=["newmailbox", "new_mail_box"]
