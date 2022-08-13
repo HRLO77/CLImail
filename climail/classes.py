@@ -90,6 +90,7 @@ class User:
         self.context = context
         self.imap_server.login(
             user, password), self.smtp_server.login(user, password)
+        self.imap_server.noop()
         self.imap_server.select('INBOX', False)
         self.current_mailbox = 'INBOX'
         print('Done!')
@@ -135,7 +136,7 @@ class User:
         '''
         Looks for mail with the string provided and requirements as a tuple of bytes.
         '''
-        return tuple(self.imap_server.search(string, requirements)[1][0].split()[-1:0-(size+1):-1].__reversed__())
+        return tuple(self.imap_server.search(string, requirements)[1][0].split()[-1:0-(size+1):-1])
 
     def subscribe(self,
                   mailbox: typing.AnyStr):  # and don't forget to hit that like button and click the notificaion bell for more!
@@ -171,14 +172,14 @@ class User:
         Returns the ID's of the mails specified as a tuple of strings.
         '''
         r, mails = self.imap_server.search(None, 'ALL')
-        return tuple(mails[0].decode().split()[-1:0-(size+1):-1].__reversed__())
+        return tuple(mails[0].decode().split()[-1:0-(size+1):-1])
 
     def mail_ids_as_bytes(self, size: typing.SupportsInt = -1):
         '''
         Returns the ID's of the mails specified as a tuple of bytes.
         '''
         r, mails = self.imap_server.search(None, 'ALL')
-        return tuple((mails[0].split()[-1:0-(size+1):-1].__reversed__()))
+        return tuple((mails[0].split()[-1:0-(size+1):-1]))
 
     def is_unread(self):
         '''
@@ -384,10 +385,11 @@ class User:
             self.imap_server.starttls(ssl_context=self.context)
         except Exception:
             print('TLS encrytion failed.')
-        self.smtp_server.helo()  # can be omitted
+        self.smtp_server.helo(), self.smtp_server.ehlo()  # can be omitted
         self.context = self.context
         self.imap_server.login(
             self.email, self.password), self.smtp_server.login(self.email, self.password)
+        self.imap_server.noop()
         self.imap_server.select('INBOX', False)
         self.current_mailbox = 'INBOX'
         print('Done!')
@@ -395,3 +397,8 @@ class User:
     def copy_mails(self, ids: typing.Iterable[typing.AnyStr or typing.ByteString], folder: typing.AnyStr):
         '''Copies mail ids to new folder'''
         self.imap_server.copy(':'.join(ids), folder)
+        
+    def restore(self, id: typing.SupportsInt):
+        '''Restores an email by ID from trash.'''
+        self.imap_server.store(self.mail_from_id(id), '-FLAGS', '\\Deleted')
+        
