@@ -102,7 +102,6 @@ class User:
         Currently doesn't support bcc's.
         '''
         # TODO: add support for bcc's
-        self.smtp_server.set_debuglevel(1)
         msg = MIMEMultipart()
         r = [reciever, *cc] if not cc is None else reciever
         msg['To'] = reciever
