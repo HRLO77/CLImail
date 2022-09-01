@@ -14,6 +14,7 @@ import functools
 import os
 import colorama
 
+
 # created a decorator that asserts whether or not the function arguments are of the corrent type, but it doesn't work with "typing" module typehints :(
 
 
@@ -196,16 +197,20 @@ class User:
         Returns the mail from specified ID, ID can be found with User.mail_ids_as_str method.
         Use User.mail_from_template method to convert the mail to a string template.
         '''
-        return email.message_from_bytes(
-            self.imap_server.fetch(str(id), '(RFC822)')[1][0][1])  # I hate working with bytes
+        m=email.message_from_bytes(
+            self.imap_server.fetch(str(id), '(RFC822)')[1][0][1])
+        setattr(m, 'id', id)
+        return m  # I hate working with bytes
 
     def mail_from_ids(self, ids: typing.Iterable[typing.Union[typing.ByteString, typing.AnyStr]]) -> typing.Generator:
         '''
         Takes an iterable of string or bytes ID's and returns a generator of email.message.Message objects.
         '''
         for i in ids:
-            yield email.message_from_bytes(
-                self.imap_server.fetch(i, '(RFC822)')[1][0][1])
+            m=email.message_from_bytes(
+            self.imap_server.fetch(str(i), '(RFC822)')[1][0][1])
+            setattr(m, 'id', i)
+            yield m
 
     @force
     def mail_from_template(self, message: email.message.Message):
@@ -215,13 +220,14 @@ class User:
         '''
         string = '================== Start of Mail ====================\n'
         if 'message-id' in message:
-            string += f'ID:    {message["message-id"]}\n'
-        string += f'From:    {message["From"]}\n'
-        string += f'To:      {message["To"]}\n'
-        string += f'Cc:      {message["Cc"]}\n'
-        string += f'Bcc:     {message["Bcc"]}\n'
-        string += f'Date:    {message["Date"]}\n'
-        string += f'Subject: {message["subject"]}\n'
+            string += f'ID:        {message["message-id"]}\n'
+        string += f'Server-ID: {message.id}\n'
+        string += f'From:      {message["From"]}\n'
+        string += f'To:        {message["To"]}\n'
+        string += f'Cc:        {message["Cc"]}\n'
+        string += f'Bcc:       {message["Bcc"]}\n'
+        string += f'Date:      {message["Date"]}\n'
+        string += f'Subject:   {message["subject"]}\n'
         for i in message.walk():
             if isinstance(i, str):
                 s = i
@@ -317,9 +323,10 @@ class User:
         '''
         return self.imap_server.list()[1]
 
-    def delete_mail_ids(self, ids: typing.List[int]):
+    def delete_mail_ids(self, ids: typing.List[typing.AnyStr or typing.ByteString]):
         '''
         Moves specified mail ID's to the trash.
+        Ids: An iterable of strings or bytestrings to move to trash.
         '''
         for i in ids:
             self.imap_server.store(i, '+FLAGS', '\\Deleted')
@@ -328,6 +335,7 @@ class User:
     def delete_mail(self, size: typing.SupportsInt = 10):
         '''
         Moves amount of mail specified to the trash.
+        Size: The amount of last emails in the current mailbox to move to trash
         '''
         for i in self.mail_ids_as_str()[-1:0-(size+1):-1]:
             self.imap_server.store(i, '+FLAGS', '\\Deleted')
@@ -343,15 +351,25 @@ class User:
     def contacts(self, size: typing.SupportsInt = 10):
         '''
         Returns a tuple of recent contacts in the current mailbox.
+        Size: The amount of last emails to check for contacts in the current mailbox.
         '''
         mails = tuple(self.mail_from_id(i) for i in self.mail_ids_as_str(size))
         contacts = list()
         for i in mails:
             if 'To' in i:
                 for b in i['To'].split(','):
-                    contacts.append(b.removesuffix(
+                    t = b.removesuffix(
                         '>').removeprefix('<') if not ' ' in b else b.rsplit(' ')[-1].removesuffix(
-                        '>').removeprefix('<'))
+                        '>').removeprefix('<')
+                    if not(self.email == t):
+                        contacts.append(t)
+            if 'From' in i:
+                for b in i['From'].split(','):
+                    t = b.removesuffix(
+                        '>').removeprefix('<') if not ' ' in b else b.rsplit(' ')[-1].removesuffix(
+                        '>').removeprefix('<')
+                    if not(self.email == t):
+                        contacts.append(t)
         c = Counter(contacts)
 
         return tuple(i[0] for i in c.most_common())
@@ -394,10 +412,13 @@ class User:
         print('Done!')
 
     def copy_mails(self, ids: typing.Iterable[typing.AnyStr or typing.ByteString], folder: typing.AnyStr):
-        '''Copies mail ids to new folder'''
+        '''
+        Copies mail ids to new folder
+        Ids: An iterable of strings or bytestrings of mail ids.
+        Folder: A string for the name of the folder to copy mail ids to.
+        '''
         self.imap_server.copy(':'.join(ids), folder)
         
     def restore(self, id: typing.SupportsInt):
         '''Restores an email by ID from trash.'''
         self.imap_server.store(self.mail_from_id(id), '-FLAGS', '\\Deleted')
-        
