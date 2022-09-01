@@ -328,8 +328,8 @@ class User:
         Moves specified mail ID's to the trash.
         Ids: An iterable of strings or bytestrings to move to trash.
         '''
-        for i in ids:
-            self.imap_server.store(i, '+FLAGS', '\\Deleted')
+        for v in self.mail_from_ids(ids):
+            self.imap_server.store(v, '+FLAGS', '\\Deleted')
         print(f'Deleted {len(ids)} messages.')
 
     def delete_mail(self, size: typing.SupportsInt = 10):
@@ -337,7 +337,7 @@ class User:
         Moves amount of mail specified to the trash.
         Size: The amount of last emails in the current mailbox to move to trash
         '''
-        for i in self.mail_ids_as_str()[-1:0-(size+1):-1]:
+        for i in self.mail_from_ids(self.mail_ids_as_str()[-1:0-(size+1):-1]):
             self.imap_server.store(i, '+FLAGS', '\\Deleted')
         print(f'Deleted {size} messages.')
 
@@ -419,6 +419,15 @@ class User:
         '''
         self.imap_server.copy(':'.join(ids), folder)
         
-    def restore(self, id: typing.SupportsInt):
+    def restore_id(self, id: typing.AnyStr or typing.ByteString):
         '''Restores an email by ID from trash.'''
         self.imap_server.store(self.mail_from_id(id), '-FLAGS', '\\Deleted')
+        print(f'Restored mail ID {id}.')
+        
+    def restore_ids(self, ids: typing.Iterable[typing.AnyStr or typing.ByteString]):
+        '''Restores an email by ID from trash.'''
+        for i in ids:
+            self.imap_server.store(self.mail_from_id(i), '-FLAGS', '\\Deleted')
+        print(f'Restored {len(ids)} emails.')
+
+

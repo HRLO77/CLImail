@@ -4,7 +4,7 @@ setup()
 
 setup(
     name="CLImail",
-    version="2.0.2",
+    version="2.0.3",
     license="MIT",
     author="HRLO77",
     author_email="shakebmohammad.10@gmail.com",

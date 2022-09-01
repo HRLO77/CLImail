@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "CLImail"
-version = "2.0.2"
+version = "2.0.3"
 description = "A Command Line Interface email client written in python."
 authors = ["HRLO77"]
 license = "MIT"
