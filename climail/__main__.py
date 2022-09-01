@@ -288,14 +288,14 @@ while True:
             aliases=["deletemail", "del_mail"],
             help="Moves number of messages specified to trash.",
         )
-        delete_mail.add_argument("-size", required=False, type=int, default=10)
+        delete_mail.add_argument("size", type=int)
         delete_mail.set_defaults(func=lambda: U.delete_mail(args.size))
         delete_ids = subparsers.add_parser(
             "delete_mail_ids",
             aliases=["deletemailids", "dmi", "del_mail_ids"],
             help="Moves mail ID's specified to trash.",
         )
-        delete_ids.add_argument("-ids", required=True, type=str, nargs="*")
+        delete_ids.add_argument("ids", type=str, nargs="*")
         delete_ids.set_defaults(func=lambda: U.delete_mail_ids(args.ids))
         clear = subparsers.add_parser(
             "clear",
