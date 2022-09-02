@@ -72,7 +72,7 @@ while True:
         parser = argparse.ArgumentParser(
             description="A CLI email client.", prog="CLImail"
         )
-        cmd = input(">>>")
+        cmd = input("\033[38;2;0;120;255m$ CLImail\033[0m ")
         subparsers = parser.add_subparsers()
         help = subparsers.add_parser("help", help="Shows this message.")
         help.set_defaults(func=parser.print_help)
