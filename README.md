@@ -2,7 +2,9 @@
 
 An CLI email client written in python. _Should_ support different email providers such as outlook, gmail, hotmail etc.
 
-Install with - python-m pip install CLImail
+Install with - python -m pip install climail
+
+Run with - python -m climail [-smtp_server server] [-imap_server server] [-smtp_port port] [-imap_port port]
 
 The default server it uses is gmail, if you want to use any other email provider, make sure to enter the correct server,
 ports and address.
