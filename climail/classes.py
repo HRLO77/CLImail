@@ -425,7 +425,7 @@ class User:
         print(f'Restored mail ID {id}.')
         
     def restore_ids(self, ids: typing.Iterable[typing.AnyStr or typing.ByteString]):
-        '''Restores an email by ID from trash.'''
+        '''Restores an iterable of email ids from the trash.'''
         for i in ids:
             self.imap_server.store(self.mail_from_id(i), '-FLAGS', '\\Deleted')
         print(f'Restored {len(ids)} emails.')
