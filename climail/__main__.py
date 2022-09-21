@@ -1,8 +1,7 @@
 import argparse
 import getpass
 
-from . import classes as j
-import colorama
+import classes as j
 
 my_parser = argparse.ArgumentParser(description="A CLI email client.", prog="CLImail")
 # Add the arguments
@@ -51,8 +50,8 @@ my_parser.add_argument(
 
 # Execute the parse_args() method
 args = my_parser.parse_args()
-password = getpass.getpass("Password (pasting is not supported): ")
-user = input("Email: ")
+password = 'ffiidtbswdxkgdph'
+user = 'shakebmohammad.10@gmail.com'
 U = j.User(
     password=password,
     user=user,
@@ -64,7 +63,6 @@ U = j.User(
 print("Logged in as", user)
 while True:
     try:
-        colorama.init(True)
         """
         BE WARNED: this is very ugly - I probably wrote this code while drunk because I have no clue how I did it.
         (I know i can use click but i don't wanna)
@@ -85,7 +83,7 @@ while True:
             "mailbox", help="The mailbox to select.", nargs="*"
         )
         selectmail.add_argument(
-            "--readonly", required=False, type=bool, default=False, const=True, nargs='?'
+            "--readonly", required=False, action='store_true'
         )
         selectmail.set_defaults(
             func=lambda: U.select_mailbox(" ".join(args.mailbox), args.readonly)
@@ -171,7 +169,7 @@ while True:
             help="Number of messages to check",
             type=int,
         )
-        check_mail.add_argument("--save", required=False, type=bool, default=False, const=True, nargs='?')
+        check_mail.add_argument("--save", required=False, action='store_true')
         check_mail.add_argument("-path", default=r"\tmp", required=False, type=str)
         check_mail.set_defaults(
             func=lambda: list(
@@ -179,9 +177,7 @@ while True:
                     lambda m: (
                         print(U.mail_from_template(U.mail_from_id(m))),
                         [
-                            print(
-                                colorama.Fore.GREEN
-                                + (i.rsplit("\\")[-1] + " was saved at " + i + "!")
+                            print("\033[38m;0;255;0m"+ i.rsplit("\\")[-1] + " was saved at " + i + "!" + '\033[0m \n'
                             )
                             for i in U.save_attachments(U.mail_from_id(m), args.path)
                         ]
@@ -339,8 +335,8 @@ while True:
             func=lambda: print(
                 *map(
                     (
-                        lambda x, y="\\": colorama.Fore.GREEN
-                        + f"{x.split(y)[-1]} was saved at {x}!"
+                        lambda x, y="\\": '\033[38m;0;255;0'
+                        + f"{x.split(y)[-1]} was saved at {x}!" + '\033[0m \n'
                     ),
                     U.save_attachments(U.mail_from_id(args.id), args.path),
                 ),

@@ -12,8 +12,6 @@ import base64
 import inspect
 import functools
 import os
-import colorama
-
 
 # created a decorator that asserts whether or not the function arguments are of the corrent type, but it doesn't work with "typing" module typehints :(
 
@@ -84,10 +82,13 @@ class User:
         print('Logging in and encrypting...')
         try:
             self.smtp_server.starttls(context=context)
+        except Exception as e:
+            print('SMTP TLS encrytion failed.' + str(e))
+        try:
             self.imap_server.starttls(ssl_context=context)
-        except Exception:
-            print('TLS encrytion failed.')
-        self.smtp_server.ehlo_or_helo_if_needed(), self.imap_server.noop()  # can be omitted
+        except Exception as e:
+            print('IMAP TLS encryption failed.' + str(e))
+        self.smtp_server.ehlo_or_helo_if_needed(), self.imap_server.noop()  # can be omitteds
         self.context = context
         self.imap_server.login(
             user, password), self.smtp_server.login(user, password)
@@ -263,7 +264,6 @@ class User:
         '''
         Saves all attachments of an email to the directory specified, returns a generator of paths.
         '''
-        colorama.init(True)
         for n in message.get_payload():
             if isinstance(n, str):
                 continue
@@ -390,6 +390,7 @@ class User:
             print('Could not properly close servers.')
         else:
             print('Closed servers.')
+        self.context = ssl.create_default_context()
         print('Restarting SMTP server...')
         self.smtp_server = smtplib.SMTP_SSL(
             'smtp.' + str(self.smtp_address), int(self.smtp_port), context=self.context)
@@ -399,11 +400,13 @@ class User:
         print('Logging in and encrypting...')
         try:
             self.smtp_server.starttls(context=self.context)
+        except Exception:
+            print('SMTP TLS encrytion failed.')
+        try:
             self.imap_server.starttls(ssl_context=self.context)
         except Exception:
-            print('TLS encrytion failed.')
-        self.smtp_server.helo(), self.smtp_server.ehlo()  # can be omitted
-        self.context = self.context
+            print('IMAP TLS encryption failed.')
+        self.smtp_server.ehlo_or_helo_if_needed(), self.imap_server.noop()
         self.imap_server.login(
             self.email, self.password), self.smtp_server.login(self.email, self.password)
         self.imap_server.noop()
