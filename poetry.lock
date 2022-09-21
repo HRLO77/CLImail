@@ -1,10 +1,8 @@
+package = []
+
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "27cf0ba9a5eb3990804c77d3672bf29a0f6521452de38651b7c43241f1cd3515"
+content-hash = "17ca553b0bb9298a6ed528dd21e544ca433179192dba32a9920168e1c199d74f"
 
 [metadata.files]
-colorama = [
-    {file = "colorama-0.4.5-py2.py3-none-any.whl", hash = "sha256:854bf444933e37f5824ae7bfc1e98d5bce2ebe4160d46b5edf346a89358e99da"},
-    {file = "colorama-0.4.5.tar.gz", hash = "sha256:e6c6b4334fc50988a639d9b98aa429a0b57da6e17b9a44f0451f930b6967b7a4"},
-]
