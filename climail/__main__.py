@@ -180,7 +180,7 @@ while True:
                     lambda m: (
                         print(U.mail_from_template(U.mail_from_id(m))),
                         [
-                            print("\x1b[38m;0;255;0m"+ i.rsplit("\\")[-1] + " was saved at " + i + "!" + '\x1b[0m \n'
+                            print("\x1b[38;2;0;255;0m"+ i.rsplit("\\")[-1] + " was saved at " + i + "!" + '\x1b[0m \n'
                             )
                             for i in U.save_attachments(U.mail_from_id(m), args.path)
                         ]
@@ -338,7 +338,7 @@ while True:
             func=lambda: print(
                 *map(
                     (
-                        lambda x, y="\\": '\x1b[38m;0;255;0m'
+                        lambda x, y="\\": '\x1b[38;2;0;255;0m'
                         + f"{x.split(y)[-1]} was saved at {x}!" + '\x1b[0m \n'
                     ),
                     U.save_attachments(U.mail_from_id(args.id), args.path),
