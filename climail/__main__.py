@@ -317,7 +317,7 @@ while True:
             aliases=["get_contacts", "fetch_contacts"],
             help="Returns a tuple of most recent contacts in the current mailbox.",
         )
-        contacts.add_argument("-size", required=False, default=10, type=int)
+        contacts.add_argument("size",  default=10, type=int)
         contacts.set_defaults(func=lambda: print(U.contacts(args.size)))
         recon = subparsers.add_parser(
             "reconnect", help="Reconnects to the SMTP and IMAP4 servers."
@@ -329,7 +329,7 @@ while True:
             help="Saves all the attachments from an email to directory specified.",
         )
         save.add_argument("-path", type=str, default=r"/tmp", required=False)
-        save.add_argument("id", type=int, required=True)
+        save.add_argument("id", type=int)
         save.set_defaults(
             func=lambda: print(
                 *map(

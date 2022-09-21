@@ -1,10 +1,8 @@
 from setuptools import find_packages, setup
 
-setup()
-
 setup(
     name="CLImail",
-    version="2.1.1",
+    version="2.1.2",
     license="MIT",
     author="HRLO77",
     author_email="shakebmohammad.10@gmail.com",
