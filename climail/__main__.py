@@ -50,8 +50,9 @@ my_parser.add_argument(
 
 # Execute the parse_args() method
 args = my_parser.parse_args()
-password = 'ffiidtbswdxkgdph'
-user = 'shakebmohammad.10@gmail.com'
+user = getpass.getpass('Email: ')
+password = getpass.getpass('Password: ')
+
 U = j.User(
     password=password,
     user=user,
@@ -60,7 +61,9 @@ U = j.User(
     smtp_port=args.smtp_port,
     imap_server=args.imap_server,
 )  # login
+
 print("Logged in as", user)
+
 while True:
     try:
         """
