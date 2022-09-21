@@ -82,12 +82,12 @@ class User:
         print('Logging in and encrypting...')
         try:
             self.smtp_server.starttls(context=context)
-        except Exception as e:
-            print('SMTP TLS encrytion failed.' + str(e))
+        except Exception:
+            print('SMTP TLS encrytion failed.')
         try:
             self.imap_server.starttls(ssl_context=context)
-        except Exception as e:
-            print('IMAP TLS encryption failed.' + str(e))
+        except Exception:
+            print('IMAP TLS encryption failed.')
         self.smtp_server.ehlo_or_helo_if_needed(), self.imap_server.noop()  # can be omitteds
         self.context = context
         self.imap_server.login(
