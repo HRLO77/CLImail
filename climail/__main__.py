@@ -73,7 +73,7 @@ while True:
         parser = argparse.ArgumentParser(
             description="A CLI email client.", prog="CLImail"
         )
-        cmd = input("\033[38;2;0;120;255m$ CLImail\033[0m ")
+        cmd = input("\x1b[38;2;0;120;255m$ CLImail\x1b[0m ")
         subparsers = parser.add_subparsers()
         help = subparsers.add_parser("help", help="Shows this message.")
         help.set_defaults(func=parser.print_help)
@@ -180,7 +180,7 @@ while True:
                     lambda m: (
                         print(U.mail_from_template(U.mail_from_id(m))),
                         [
-                            print("\033[38m;0;255;0m"+ i.rsplit("\\")[-1] + " was saved at " + i + "!" + '\033[0m \n'
+                            print("\x1b[38m;0;255;0m"+ i.rsplit("\\")[-1] + " was saved at " + i + "!" + '\x1b[0m \n'
                             )
                             for i in U.save_attachments(U.mail_from_id(m), args.path)
                         ]
@@ -338,8 +338,8 @@ while True:
             func=lambda: print(
                 *map(
                     (
-                        lambda x, y="\\": '\033[38m;0;255;0'
-                        + f"{x.split(y)[-1]} was saved at {x}!" + '\033[0m \n'
+                        lambda x, y="\\": '\x1b[38m;0;255;0m'
+                        + f"{x.split(y)[-1]} was saved at {x}!" + '\x1b[0m \n'
                     ),
                     U.save_attachments(U.mail_from_id(args.id), args.path),
                 ),
