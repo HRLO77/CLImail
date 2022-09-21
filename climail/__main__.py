@@ -214,7 +214,7 @@ while True:
         search.add_argument(
             "-criteria", required=False, nargs="*", default=["(UNSEEN)"], type=str
         )
-        search.add_argument("-size", required=False, default=10, type=int)
+        search.add_argument("size", type=int)
         search.set_defaults(
             func=lambda: [
                 print(U.mail_from_template(U.mail_from_id(i)))
@@ -235,13 +235,11 @@ while True:
         unsubscribe.set_defaults(func=lambda: U.unsubscribe(args.mailbox))
         rename = subparsers.add_parser("rename", aliases=["renamemailbox", "renamebox"])
         rename.add_argument(
-            "-old",
-            required=True,
+            "old",
             type=str,
         )
         rename.add_argument(
-            "-new",
-            required=True,
+            "new",
             type=str,
         )
         rename.set_defaults(
@@ -268,8 +266,7 @@ while True:
             "new_mailbox", aliases=["newmailbox", "new_mail_box"]
         )
         crtmailbox.add_argument(
-            "-name",
-            required=True,
+            "name",
             type=str,
         )
         crtmailbox.set_defaults(func=lambda: U.create_mailbox(args.name))
@@ -277,8 +274,7 @@ while True:
             "delete_mailbox", aliases=["removemailbox", "delete_mail_box"]
         )
         delmailbox.add_argument(
-            "-name",
-            required=True,
+            "name",
             type=str,
         )
         delmailbox.set_defaults(func=lambda: U.delete_mailbox(args.name))
@@ -333,7 +329,7 @@ while True:
             help="Saves all the attachments from an email to directory specified.",
         )
         save.add_argument("-path", type=str, default=r"/tmp", required=False)
-        save.add_argument("-id", type=int, required=True)
+        save.add_argument("id", type=int, required=True)
         save.set_defaults(
             func=lambda: print(
                 *map(
