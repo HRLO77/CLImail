@@ -393,10 +393,10 @@ class User:
         self.context = ssl.create_default_context()
         print('Restarting SMTP server...')
         self.smtp_server = smtplib.SMTP_SSL(
-            'smtp.' + str(self.smtp_address), int(self.smtp_port), context=self.context)
+            self.smtp_address, int(self.smtp_port), context=self.context)
         print('Restarting IMAP4 server...')
         self.imap_server = imaplib.IMAP4_SSL(
-            'imap.' + str(self.imap_address), int(self.imap_port), ssl_context=self.context)
+            self.imap_address, int(self.imap_port), ssl_context=self.context)
         print('Logging in and encrypting...')
         try:
             self.smtp_server.starttls(context=self.context)
