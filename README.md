@@ -40,6 +40,5 @@ NOTE: to select mailboxes other than INBOX, you must select exactly how they are
 Saving all attachments from the latest message:
 `user.save_attachments(user.mail_from_id(user.mail_ids_as_str(1)[0]))`
 
-The rest of the methods are quite self-explanatory, if you need help DM me at HRLO77#3508 (discord) or HRLO77 (reddit)
-(Do the smart thing an open an discussion)
+The rest of the methods are quite self-explanatory, if you need help DM me at HRLO77#3508 (discord) or hrlo.77 (Instagram)
 
