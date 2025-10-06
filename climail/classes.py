@@ -7,12 +7,13 @@ import typing
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.utils import COMMASPACE, formatdate
+from email.utils import COMMASPACE, formatdate, format_datetime
 import base64
 import inspect
 import functools
 import os
-
+from email import message, mime
+import datetime
 # created a decorator that asserts whether or not the function arguments are of the corrent type, but it doesn't work with "typing" module typehints :(
 
 
@@ -72,6 +73,8 @@ class User:
         self.smtp_port = smtp_port
         self.imap_port = imap_port
         # print(user, password, server, imap_port, smtp_port, 'smtp.' + str(server))
+        print('Logging in and encrypting...')
+        
         print('Starting SMTP server...')
         # spent two hours here only to find i made a typo :/
         self.smtp_server = smtplib.SMTP_SSL(
@@ -79,16 +82,17 @@ class User:
         print('Starting IMAP4 server...')
         self.imap_server = imaplib.IMAP4_SSL(
             str(imap_server), int(imap_port), ssl_context=context)
-        print('Logging in and encrypting...')
-        try:
-            self.smtp_server.starttls(context=context)
-        except Exception:
-            print('SMTP TLS encrytion failed.')
-        try:
-            self.imap_server.starttls(ssl_context=context)
-        except Exception:
-            print('IMAP TLS encryption failed.')
+        # try:
+        #     self.smtp_server.starttls(context=context)
+        # except Exception:
+        #     print('SMTP TLS encrytion failed.')
+        # try:
+        #     self.imap_server.starttls(ssl_context=context)
+        # except Exception:
+        #     print('IMAP TLS encryption failed.')
+        print('Pinging...')
         self.smtp_server.ehlo_or_helo_if_needed(), self.imap_server.noop()  # can be omitteds
+        self.smtp_server.noop()
         self.context = context
         self.imap_server.login(
             user, password), self.smtp_server.login(user, password)
@@ -98,32 +102,35 @@ class User:
         print('Done!')
         # requires error handling on login in case of invalid credentials or access by less secure apps is disabled.
 
-    def sendmail(self, reciever: typing.AnyStr, content: typing.AnyStr = 'None', subject: typing.AnyStr = 'None', cc: typing.List[typing.AnyStr] = None, attachments: typing.List[typing.AnyStr] = None):
+    def sendmail(self, reciever: typing.AnyStr, content: typing.AnyStr = 'None', subject: typing.AnyStr = 'None', cc: typing.List[typing.AnyStr] = None, bcc: typing.List[typing.AnyStr] = None, attachments: typing.List[typing.AnyStr] = None):
         '''
         Sends a basic email to a reciever and the cc.
         Currently doesn't support bcc's.
         '''
         # TODO: add support for bcc's
-        msg = MIMEMultipart()
+        # msg = MIMEMultipart()
+        msg = message.EmailMessage()
         r = [reciever, *cc] if not cc is None else reciever
         msg['To'] = reciever
         msg['Date'] = formatdate(localtime=True)
         msg['Cc'] = COMMASPACE.join(cc) if not cc is None else 'None'
         msg['From'] = self.email
         msg['Subject'] = subject
-        msg.attach(MIMEText(content, 'plain'))
+        msg.set_content(content)
+        # msg.attach(MIMEText(content, 'plain'))
         if not attachments is None:
-            print('loading attachments')
-            attachments = [open(i, 'rb') for i in attachments]
+            # print('loading attachments')
+            attachments: list = [open(i, 'rb') for i in attachments]
             for attachment in attachments:  # add the attachments
-                part = MIMEApplication(
-                    attachment.read(),
-                    Name=os.path.basename(attachment.name))
-                part['Content-Disposition'] = 'attachment; filename="%s"' % os.path.basename(
-                    attachment.name)
-                msg.attach(part)
+                # part = MIMEApplication(
+                #     attachment.read(),
+                #     Name=os.path.basename(attachment.name))
+                # part['Content-Disposition'] = 'attachment; filename="%s"' % os.path.basename(
+                #     attachment.name)
+                # msg.attach(part)
+                msg.add_attachment(attachment.read(), maintype='application', subtype=os.path.basename(attachment.name).split('.')[-1], filename=os.path.basename(attachment.name))
         text = msg.as_string()
-        self.smtp_server.sendmail(self.email, r, text)
+        self.smtp_server.sendmail(self.email, r+([] if bcc is None else bcc), text)
         return True  # Message has been sent succesfully!
 
     def rename_mailbox(self, old: typing.AnyStr, new: typing.AnyStr):
@@ -133,11 +140,20 @@ class User:
         self.imap_server.rename(old, new)
         return True  # Mailbox has been renamed succesfully!
 
-    def search(self, string: typing.AnyStr = None, requirements: typing.AnyStr = '(UNSEEN)', size: typing.SupportsInt = 10):
+    
+    def _search(self, string: typing.AnyStr = None, requirements: typing.List[typing.AnyStr] = ['(UNSEEN)'], size: int=10):
+        '''
+        DEPRECTAED
+        Looks for mail with the string provided and requirements as a tuple of bytes.
+        '''
+        return tuple(self.imap_server.search(string, *requirements)[1][0].split()[-1:0-(size+1):-1])
+    
+    def search(self, requirements: typing.List[typing.AnyStr], charset: str|None=None, size: typing.SupportsInt = -1):
         '''
         Looks for mail with the string provided and requirements as a tuple of bytes.
         '''
-        return tuple(self.imap_server.search(string, requirements)[1][0].split()[-1:0-(size+1):-1])
+        
+        return tuple(self.imap_server.search(charset, *requirements)[1][0].split()[-1:0-(size+1):-1])
 
     def subscribe(self,
                   mailbox: typing.AnyStr):  # and don't forget to hit that like button and click the notificaion bell for more!
@@ -193,7 +209,7 @@ class User:
             else:
                 return False
 
-    def mail_from_id(self, id: typing.Union[typing.ByteString, typing.AnyStr]) -> email.message.Message:
+    def mail_from_id(self, id: typing.Union[typing.ByteString, typing.AnyStr]) -> message.Message:
         '''
         Returns the mail from specified ID, ID can be found with User.mail_ids_as_str method.
         Use User.mail_from_template method to convert the mail to a string template.
@@ -205,18 +221,20 @@ class User:
 
     def mail_from_ids(self, ids: typing.Iterable[typing.Union[typing.ByteString, typing.AnyStr]]) -> typing.Generator:
         '''
-        Takes an iterable of string or bytes ID's and returns a generator of email.message.Message objects.
+        Takes an iterable of string or bytes ID's and returns a generator of message.Message objects.
         '''
         for i in ids:
             m=email.message_from_bytes(
-            self.imap_server.fetch(str(i), '(RFC822)')[1][0][1])
+            self.imap_server.fetch(str(i), '(RFC822)')[1][0][1]).
             setattr(m, 'id', i)
             yield m
 
-    @force
-    def mail_from_template(self, message: email.message.Message):
+    def expunge(self) -> list[int]:
+        return self.imap_server.expunge()[1]
+
+    def mail_from_template(self, message: message.Message):
         '''
-        Takes a email.message.Message object (object can be found from User.mail_from_id method) and creates a message out of a template for it. (Not sure if template is the right word.)
+        Takes a message.Message object (object can be found from User.mail_from_id method) and creates a message out of a template for it. (Not sure if template is the right word.)
         You can change this method to create a template that looks better, your choice.
         '''
         string = '================== Start of Mail ====================\n'
@@ -256,11 +274,12 @@ class User:
             if isinstance(n, str):
                 continue
             if n.get_content_type().startswith('application') or n.get_content_type().startswith('image'):
+                n
                 string += f'{n.get_filename()}\n'
         string += '\n================== End of Mail ======================\n'
         return string
 
-    def save_attachments(self, message: email.message.Message, path: typing.AnyStr = r'\tmp') -> typing.Generator:
+    def save_attachments(self, message: message.Message, path: typing.AnyStr = r'\tmp') -> typing.Generator:
         '''
         Saves all attachments of an email to the directory specified, returns a generator of paths.
         '''
@@ -391,22 +410,24 @@ class User:
         else:
             print('Closed servers.')
         self.context = ssl.create_default_context()
+        print('Logging in and encrypting...')
+
         print('Restarting SMTP server...')
         self.smtp_server = smtplib.SMTP_SSL(
             self.smtp_address, int(self.smtp_port), context=self.context)
         print('Restarting IMAP4 server...')
         self.imap_server = imaplib.IMAP4_SSL(
             self.imap_address, int(self.imap_port), ssl_context=self.context)
-        print('Logging in and encrypting...')
-        try:
-            self.smtp_server.starttls(context=self.context)
-        except Exception:
-            print('SMTP TLS encrytion failed.')
-        try:
-            self.imap_server.starttls(ssl_context=self.context)
-        except Exception:
-            print('IMAP TLS encryption failed.')
+        # try:
+        #     self.smtp_server.starttls(context=self.context)
+        # except Exception:
+        #     print('SMTP TLS encrytion failed.')
+        # try:
+        #     self.imap_server.starttls(ssl_context=self.context)
+        # except Exception:
+        #     print('IMAP TLS encryption failed.')
         self.smtp_server.ehlo_or_helo_if_needed(), self.imap_server.noop()
+        self.smtp_server.noop()
         self.imap_server.login(
             self.email, self.password), self.smtp_server.login(self.email, self.password)
         self.imap_server.noop()

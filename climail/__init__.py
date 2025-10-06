@@ -1,4 +1,8 @@
-__version__ = "2.1.3"
+__version__ = "2.1.4"
+
+import classes
+
+__all__ = [classes]
 
 """
 
@@ -37,7 +41,7 @@ NOTE: to select mailboxes other than INBOX, you must select exactly how they are
 user.select_mailbox('"[Gmail]/Sent Mail"')
 """
 
-# the rest of the methods are quite self-explanatory, if you need help DM me at HRLO77#3508 (discord) or HRLO77 (reddit)
+# the rest of the methods are quite self-explanatory, if you need help DM me at HRLO77#3508 (discord) or HRLO77 (reddit) or hrlo.77 (instagram)
 # (Do the smart thing an open a discussion)
 
 # Start the CLI by running - python -m CLImail -smtp_server [server] -imap_server [server] -smtp_port [smtp_port] -imap_port [imap_port]

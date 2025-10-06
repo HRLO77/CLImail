@@ -1,7 +1,8 @@
 import argparse
 import getpass
-
+import os
 from . import classes as j
+import itertools
 
 my_parser = argparse.ArgumentParser(description="A CLI email client.", prog="CLImail")
 # Add the arguments
@@ -50,8 +51,8 @@ my_parser.add_argument(
 
 # Execute the parse_args() method
 args = my_parser.parse_args()
-user = getpass.getpass('Email: ')
-password = getpass.getpass('Password: ')
+user =input('Email: ')
+password = input('Password: ')
 
 U = j.User(
     password=password,
@@ -89,7 +90,7 @@ while True:
             "--readonly", required=False, action='store_true'
         )
         selectmail.set_defaults(
-            func=lambda: U.select_mailbox(" ".join(args.mailbox), args.readonly)
+            func=lambda: U.select_mailbox(" ".join(args.mailbox), args.readonly,)
         )
         cancelmailbox = subparsers.add_parser(
             "unselect",
@@ -134,6 +135,14 @@ while True:
             nargs="*",
         )
         sendmail.add_argument(
+            "-bcc",
+            help="Blind carbon copy - addresses to send the mail to as well, seperated by spaces.",
+            required=False,
+            type=str,
+            default=None,
+            nargs="*",
+        )
+        sendmail.add_argument(
             "-to_attach",
             help="List of filenames/fps to attach to the mail, seperated by spaces.",
             required=False,
@@ -147,6 +156,7 @@ while True:
                     " ".join(args.content),
                     " ".join(args.subject),
                     args.cc,
+                    args.bcc,
                     args.to_attach,
                 ),
                 print("Email sent successfully to", args.reciever + "!"),
@@ -173,7 +183,7 @@ while True:
             type=int,
         )
         check_mail.add_argument("--save", required=False, action='store_true')
-        check_mail.add_argument("-path", default=r"\tmp", required=False, type=str)
+        check_mail.add_argument("-path", default=r"/tmp", required=False, type=str)
         check_mail.set_defaults(
             func=lambda: list(
                 map(
@@ -193,7 +203,7 @@ while True:
         )  # don't even ask
         current = subparsers.add_parser(
             "current",
-            aliases=["current_mailbox", "current_mail"],
+            aliases=["current_mailbox", "current_mail", "cur"],
             help="The current mailbox selected.",
         )
         current.set_defaults(func=lambda: print(U.current_mailbox))
@@ -206,22 +216,49 @@ while True:
         search = subparsers.add_parser(
             "search",
             aliases=["searchmail", "searchmessages"],
-            help="Takes in a string and criteria, and returns messages that match.",
+            help="Takes in a criteria, and returns messages that match.",
+        )
+        # search.add_argument(
+        #     "-string", required=False, default=None, type=str, nargs="*"
+        # )
+        search.add_argument(
+            "-from", required=False, nargs="*", type=str,help='Email from a certain addr'
         )
         search.add_argument(
-            "-string", required=False, default=None, type=str, nargs="*"
+            "-subject", required=False, nargs="*", type=str,help='A specific keyword in the email subject'
         )
         search.add_argument(
-            "-criteria", required=False, nargs="*", default=["(UNSEEN)"], type=str
+            "-body", required=False, nargs="*", type=str,help='A specific keyword in the email body'
         )
-        search.add_argument("size", type=int)
+        search.add_argument(
+            "-text", required=False, nargs="*", type=str,help='A specific keyword in the email'
+        )
+        search.add_argument(
+            "--unseen", required=False, action='store_true',help='Unseen emails'
+        )
+        search.add_argument(
+            "--seen", required=False, action='store_true',help='Seen emails'
+        )
+        search.add_argument(
+            "--unflagged", required=False, action='store_true',help='Unflagged emails'
+        )
+        search.add_argument(
+            "--flagged", required=False, action='store_true',help='Flagged emails'
+        )
+        search.add_argument(
+            "-since", required=False, nargs="*", type=str,help='Emails after a specific date (DD-Mon-YYYY, e.g 27-Oct-2001)'
+        )
+        search.add_argument(
+            "-before", required=False, nargs="*", type=str,help='Emails before a specific date (DD-Mon-YYYY, e.g 27-Oct-2001)'
+        )
+        search.add_argument(
+            "-on", required=False, nargs="*", type=str,help='Emails on a specific date (DD-Mon-YYYY, e.g 27-Oct-2001)'
+        )
+        search.add_argument("size", required=False, type=int, default=20, help="Number of messages to return from the resulting search")
         search.set_defaults(
             func=lambda: [
                 print(U.mail_from_template(U.mail_from_id(i)))
-                for i in U.search(
-                    args.string if args.string is None else " ".join(args.string),
-                    " ".join(args.criteria),
-                    size=args.size,
+                for i in U.search(size = args.size, requirements=itertools.chain.from_iterable([(j.upper(), k) if not(isinstance(k, bool)) else j.upper() for j,k in args._get_kwargs() if i!='size'])
                 )
             ]
         )
@@ -292,6 +329,8 @@ while True:
         )
         delete_ids.add_argument("ids", type=str, nargs="*")
         delete_ids.set_defaults(func=lambda: U.delete_mail_ids(args.ids))
+        cls_clear = subparsers.add_parser('cls', aliases=['clear'], help='Clears the screen')
+        cls_clear.set_defaults(func=lambda: os.system('cls||clear'))
         clear = subparsers.add_parser(
             "clear",
             aliases=["clear_trash", "clear_recycling", "clear_garbage"],
@@ -348,7 +387,7 @@ while True:
         args.__dict__["func"]()
     except BaseException as e:
         if len(str(e)) < 1 or str(e) == "0":
-            if "y" in input("Do you want to quit? (y/n): ").lower():
+            if "Y"==input("Do you want to quit? (Y/n): "):
                 parser.exit()
             else:
                 continue
